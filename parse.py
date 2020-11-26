@@ -109,19 +109,21 @@ def calc(var_dict,parse_tree,token_list):
 
 
 
-# <setq_stmt> -> ( setq <ident> <expr> )
+# <setq_stmt> -> ( setq <ident> <expr> ... )
 def set_q(parse_tree,token_list):
-    if(len(token_list)!=0):temp=token_list[0]
-    else:
+    if(len(token_list)==0):
         print("there is no argument")
         return 'error'
-    if(temp[0]!='ident'):print("error");return 'error'
-    else:factor(parse_tree,token_list)
-    if(not expr(parse_tree,token_list)):return 'error'
 
-    if(len(parse_tree.children)!=2 or len(token_list)!=0):
+    while(len(token_list)>0):
+        factor(parse_tree,token_list)
+        if(not expr(parse_tree,token_list)):return 'error'
+
+
+
+    if(len(token_list)!=0):
         print("cannot match argument")
-        print("please match format to (setq <ident> <expr>)")
+        print("please match format to (setq <ident> <expr> <ident> <expr> ...)")
         return 'error'
 
     return parse_tree
@@ -351,7 +353,7 @@ def expr(parse_tree,token_list):
 def factor(parse_tree,token_list):
     parse_tree.add([TreeNode(token_list.pop(0))])
 
-# 폐기예정
+# 폐기예
 def is_exist_list_all(var_dict,parse_tree):
     for i in parse_tree.children:
         if(i.data[0]=='ident'):
@@ -369,7 +371,7 @@ def is_exist_list_all(var_dict,parse_tree):
         elif(i.data[1]=="member"):pass #NIL반환하는 경우를 찾아서 처리해줘야함
 
     return True
-# 폐기예정
+
 def is_exist_list(var_dict,parse_tree):
     if(parse_tree.data[0]=='ident'):
         if(parse_tree.data[1] in var_dict):
@@ -387,7 +389,7 @@ def is_exist_list(var_dict,parse_tree):
     elif(parse_tree.data[1]=="nth"):pass #list를 반환하지 않는 경우를 찾아줘야1
 
     return True
-# 폐기예정
+
 def is_numeric(var_dict,parse_tree):
     if(parse_tree.data[0]=='ident'):
         if(parse_tree.data[1] in var_dict):
@@ -405,7 +407,7 @@ def is_numeric(var_dict,parse_tree):
     elif(parse_tree.data[1]=="nth"):pass #숫자를 반환하지 않는 경우를 찾아줘야1
 
     return True
-# 폐기예정
+
 def is_numeric_all(var_dict,parse_tree):
     for i in parse_tree.children:
         if(i.data[0]=='ident'):

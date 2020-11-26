@@ -1,3 +1,6 @@
+import re
+
+
 temp=0
 buffer=str()
 nextToken=str()
@@ -96,7 +99,13 @@ def lex():
     elif(nextChar.isdigit()):
         addChar()
         getChar()
-        while(nextChar.isdigit()):
+        cnt=0
+        while(nextChar=="." or nextChar.isdigit()):
+            if(nextChar=="." and cnt==0):
+                cnt=cnt+1
+            elif(nextChar=="." and cnt!=0):
+                print(lexeme+"is bad number")
+                raise NotImplementedError
             addChar()
             getChar()
         nextToken = 'literal'
@@ -104,10 +113,23 @@ def lex():
         getChar()
         if(nextChar=="("):
             stack=[]
+            blank=[]
             stack.append(nextChar)
             while(True):
-                addChar()
-                getChar()
+                if(nextChar==" " and len(blank)!=0):
+                    getChar()
+                elif(nextChar==" " and len(stack)>1 and lexeme[-1]=="("):
+                    getChar()
+                else:
+                    if(nextChar==" " and len(blank)==0):
+                        blank.append(nextChar)
+                    elif(nextChar!=" " and len(blank)!=0):
+                        blank.pop()
+                    elif(nextChar=="("):
+                        if(len(lexeme)>0 and lexeme[-1]==")"):
+                            lexeme=lexeme+" "
+                    addChar()
+                    getChar()
                 if(nextChar=="("):
                     stack.append(nextChar)
                 elif(nextChar==")"):
@@ -115,10 +137,13 @@ def lex():
                         stack.pop()
                         break
                     else:
+                        if(lexeme[-1]==" "):
+                            lexeme=lexeme[:-1]
                         stack.pop()
 
             addChar()
             getChar()
+            lexeme="("+lexeme[1:-1].strip()+")"
             nextToken="literal_list"
         else:
             addChar()
@@ -126,7 +151,7 @@ def lex():
             while(nextChar.isalnum()):
                 addChar()
                 getChar()
-            nextToken="variable" # it means case of 'X
+            nextToken="variable" # it means case of 'X #나중에 symbol로 이름 바꾸기
     elif(nextChar=='"'):
         addChar()
         getChar()
@@ -136,6 +161,26 @@ def lex():
         addChar()
         getChar()
         nextToken="string"
+    elif(nextChar=="-"):
+        addChar() #-들어감
+        getChar()
+        if(nextChar.isspace()):
+            nextToken="-"
+        else:
+            if(nextChar.isdigit()):
+                addChar()
+                getChar()
+                cnt=0
+                while(nextChar=="." or nextChar.isdigit()):
+                    if(nextChar=="." and cnt==0):
+                        cnt=cnt+1
+                    elif(nextChar=="." and cnt!=0):
+                        print(lexeme+"is bad number")
+                        raise NotImplementedError
+                    addChar()
+                    getChar()
+            nextToken='literal'
+
     else:
         nextToken=lookup(nextChar)
         addChar()

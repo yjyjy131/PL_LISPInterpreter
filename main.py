@@ -11,7 +11,10 @@ import evalu
 print("LISP Interpreter")
 var_dict={}
 while(1):
-  buffer=input('>')
-  result=evalu.eval(var_dict,parse.parser(var_dict,lex.lexer(buffer)))
-  print(result)
-  print(var_dict)
+    buffer=input('>')
+    try:
+        result=evalu.eval(var_dict,parse.parser(var_dict,lex.lexer(buffer)))
+        print(result)
+        print(var_dict)
+    except NotImplementedError:
+        pass
