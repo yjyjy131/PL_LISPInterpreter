@@ -54,7 +54,7 @@ def symbol(lex):
     elif(cmpstr=="stringp"):return "stringp"
     elif(cmpstr=="if"):return "if"
     elif(cmpstr=="cond"):return "cond"
-    elif(cmpstr=="caddr"):return "caddr"
+    elif(cmpstr=="caddr"):return "caddr" #car+cdr 조합은 곧 만들 예정
     elif(cmpstr=="t"):return "true"
     elif(cmpstr=="nil"):return"false"
     else:return "ident"
@@ -123,7 +123,7 @@ def lex():
         else:
             addChar()
             getChar()
-            while(nextChar.isalpha() or nextChar.isdigit()):
+            while(nextChar.isalnum()):
                 addChar()
                 getChar()
             nextToken="variable" # it means case of 'X
@@ -149,7 +149,8 @@ def addChar():
     global buffer
     global lexeme
     global nextChar
-    if lexLen<=98:
+    if(nextChar.isalpha()):nextChar=nextChar.lower()
+    if(lexLen<=98):
         lexeme=lexeme+nextChar
         lexLen = lexLen + 1
     else:

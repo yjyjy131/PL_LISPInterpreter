@@ -71,6 +71,22 @@ def parser(var_dict,token_list):
     elif(func=='length'):
         result=length(var_dict,parse_tree,token_list)
         return result
+    # parsing member function
+    elif(func=='member'):
+        result=member(var_dict,parse_tree,token_list)
+        return result
+    # parsing assoc function
+    elif(func=='assoc'):
+        result=assoc(var_dict,parse_tree,token_list)
+        return result
+    # parsing remove function
+    elif(func=='remove'):
+        result=remove(var_dict,parse_tree,token_list)
+        return result
+    # parsing subst function
+    elif(func=='subst'):
+        result=subst(var_dict,parse_tree,token_list)
+        return result
     """
     elif(func==다른함수):
         다른 함수에 대한 parse 함수
@@ -79,81 +95,227 @@ def parser(var_dict,token_list):
 
 
 
-# parsing arithmetic function
+
+# <arithmetic_stmt> -> ( (+|-|*|/) <expr> {<expr>})
 def calc(var_dict,parse_tree,token_list):
     while(len(token_list)>0):
         if(not expr(parse_tree,token_list)):return 'error'
-    if(not is_numeric_all(var_dict,parse_tree)):return 'error'
-    return parse_tree
-
-
-# parsing SETQ function
-def set_q(parse_tree,token_list):
-    temp=token_list[0]
-    if(temp[0]!='ident'):print("error");return 'error'
-    else:factor(parse_tree,token_list)
-    if(not expr(parse_tree,token_list)):return 'error'
-
-    return parse_tree
-
-# parsing LIST function
-def make_list(parse_tree,token_list):
-    while(len(token_list)>0):
-        if(not expr(parse_tree,token_list)):return 'error'
-
-    if(len(parse_tree.children)==0):
-        print("there is no list argument")
+    #if(not is_numeric_all(var_dict,parse_tree)):return 'error' # should fix this error by eval. result of all <expr> should be <literal> or <ident> saving <literal>
+    if(len(parse_tree.children)==0 or len(token_list)!=0):
+        print("there is no operand")
         return 'error'
 
     return parse_tree
 
-# parsing CAR function
-def car(var_dict,parse_tree,token_list):
-    if(not expr(parse_tree,token_list)):return 'error'
-    if(not is_exist_list_all(var_dict,parse_tree)):return 'error'
-    return parse_tree
 
-# parsing CDR function
-def cdr(var_dict,parse_tree,token_list):
-    if(not expr(parse_tree,token_list)):return 'error'
-    if(not is_exist_list_all(var_dict,parse_tree)):return 'error'
-    return parse_tree
 
-# parsing NTH function
-def nth(var_dict,parse_tree,token_list):
+# <setq_stmt> -> ( setq <ident> <expr> )
+def set_q(parse_tree,token_list):
+    if(len(token_list)!=0):temp=token_list[0]
+    else:
+        print("there is no argument")
+        return 'error'
+    if(temp[0]!='ident'):print("error");return 'error'
+    else:factor(parse_tree,token_list)
     if(not expr(parse_tree,token_list)):return 'error'
-    if(not expr(parse_tree,token_list)):return 'error'
-    if(not is_numeric(var_dict,parse_tree.children[0])):return 'error'
-    if(not is_exist_list(var_dict,parse_tree.children[1])):return 'error' #shold fix error
-    return parse_tree
 
-# parsing CONS function
-def cons(var_dict,parse_tree,token_list):
-    if(not expr(parse_tree,token_list)):return 'error'
-    if(not expr(parse_tree,token_list)):return 'error'
-    if(not is_exist_list(var_dict,parse_tree.children[1])):return 'error'
-    return parse_tree
+    if(len(parse_tree.children)!=2 or len(token_list)!=0):
+        print("cannot match argument")
+        print("please match format to (setq <ident> <expr>)")
+        return 'error'
 
-# parsing reverse function
-def reverse(var_dict,parse_tree,token_list):
-    if(not expr(parse_tree,token_list)):return 'error'
-    if(not is_exist_list_all(var_dict,parse_tree)):return 'error'
     return parse_tree
+    # (setq x 'x) << sholud fix error. not none. should save ('ident', 'x')
 
-# parsing APPEND function
-def make_append(var_dict,parse_tree,token_list):
+
+
+
+
+# <list_stmt> -> ( list <expr> {<expr>})
+def make_list(parse_tree,token_list):
     while(len(token_list)>0):
         if(not expr(parse_tree,token_list)):return 'error'
-    if(not is_exist_list_all(var_dict,parse_tree)):return 'error'
-    return parse_tree
 
-# parsing length function
-def length(var_dict,parse_tree,token_list):
+    if(len(parse_tree.children)==0 or len(token_list)!=0):
+        print("there is no list item")
+        return 'NIL'
+
+    return parse_tree
+    # (list 'x x 5) <<should fix error
+
+
+# <car_stmt> -> ( car <expr> )
+def car(var_dict,parse_tree,token_list):
+    if(len(token_list)==0):
+        print("there is no argument")
+        return 'error'
     if(not expr(parse_tree,token_list)):return 'error'
-    if(not is_exist_list_all(var_dict,parse_tree)):return 'error'
+    #if(not is_exist_list_all(var_dict,parse_tree)):return 'error' # should fix this error by eval. result of <expr> should be <literal_list>
+    if(len(parse_tree.children)!=1 or len(token_list)!=0):
+        print("cannot match argument")
+        print("please match format to (car <expr>)")
+        return 'error'
+
     return parse_tree
 
+
+# <cdr_stmt> -> ( cdr <expr> )
+def cdr(var_dict,parse_tree,token_list):
+    if(len(token_list)==0):
+        print("there is no argument")
+        return 'error'
+    if(not expr(parse_tree,token_list)):return 'error'
+    #if(not is_exist_list_all(var_dict,parse_tree)):return 'error'  # should fix this error by eval. result of <expr> should be <literal_list>
+    if(len(parse_tree.children)!=1 or len(token_list)!=0):
+        print("cannot match argument")
+        print("please match format to (cdr <expr>)")
+        return 'error'
+
+    return parse_tree
+
+
+# <nth_stmt> -> ( nth <expr> <expr> )
+def nth(var_dict,parse_tree,token_list):
+    if(len(token_list)==0):
+        print("there is no argument")
+        return 'error'
+    if(not expr(parse_tree,token_list)):return 'error'
+    if(not expr(parse_tree,token_list)):return 'error'
+    if(len(parse_tree.children)!=2 or len(token_list)!=0):
+        print("cannot match argument")
+        print("please match format to (nth <expr> <expr>)")
+        return 'error'
+
+    #if(not is_numeric(var_dict,parse_tree.children[0])):return 'error' # should fix this error by eval. result of first <expr> should be <literal> or <ident> saving <literal>
+    #if(not is_exist_list(var_dict,parse_tree.children[1])):return 'error' # should fix this error by eval. result of second <expr> should be <literal_list>
+    return parse_tree
+
+
+# <cons_stmt> -> ( cons <expr> <expr> ) ;
+def cons(var_dict,parse_tree,token_list):
+    if(len(token_list)==0):
+        print("there is no argument")
+        return 'error'
+    if(not expr(parse_tree,token_list)):return 'error'
+    if(not expr(parse_tree,token_list)):return 'error'
+    if(len(parse_tree.children)!=2 or len(token_list)!=0):
+        print("cannot match argument")
+        print("please match format to (setq <variable> <expr>)")
+        return 'error'
+    #if(not is_exist_list(var_dict,parse_tree.children[1])):return 'error' # should fix this error by eval. result of second <expr> should be <literal_list>
+    return parse_tree
+
+
+# <reverse_stmt> -> ( reverse <expr>)
+def reverse(var_dict,parse_tree,token_list):
+    if(len(token_list)==0):
+        print("there is no argument")
+        return 'error'
+
+    if(not expr(parse_tree,token_list)):return 'error'
+    if(len(parse_tree.children)!=1 or len(token_list)!=0):
+        print("cannot match argument")
+        print("please match format to (reverse <expr>)")
+        return 'error'
+
+    #if(not is_exist_list_all(var_dict,parse_tree)):return 'error' # should fix this error by eval. result of <expr> should be <literal_list>
+    return parse_tree
+
+
+# <append_stmt> -> ( append <expr> {<expr>})
+def make_append(var_dict,parse_tree,token_list):
+    if(len(token_list)==0):
+        print("there is no argument")
+        return "NIL"
+    if(not expr(parse_tree,token_list)):return 'error'
+    while(len(token_list)>0):
+        if(not expr(parse_tree,token_list)):return 'error'
+    if(len(parse_tree.children)==0 or len(token_list)!=0):
+        print("there is no list")
+        return 'error'
+    #if(not is_exist_list_all(var_dict,parse_tree)):return 'error' # should fix this error by eval. result of all <expr> should be <literal_list>
+    return parse_tree
+
+
+# <length_stmt> -> ( length <expr> ) ;
+def length(var_dict,parse_tree,token_list):
+    if(len(token_list)==0):
+        print("there is no argument")
+        return 'error'
+    if(not expr(parse_tree,token_list)):return 'error'
+    if(len(parse_tree.children)!=1 or len(token_list)!=0):
+        print("cannot match argument")
+        print("please match format to ( length <expr>)")
+        return 'error'
+    #if(not is_exist_list_all(var_dict,parse_tree)):return 'error' # should fix this error by eval. result of <expr> should be <literal_list>
+    return parse_tree
+
+
+# <member_stmt> -> ( member <expr> <expr> )
+def member(var_dict,parse_tree,token_list):
+    if(len(token_list)==0):
+        print("there is no argument")
+        return 'error'
+    if(not expr(parse_tree,token_list)):return 'error'
+    if(not expr(parse_tree,token_list)):return 'error'
+    if(len(parse_tree.children)!=2  or len(token_list)!=0):
+        print("cannot match argument")
+        print("please match format to (member <expr> <expr>)")
+        return 'error'
+    #if(not is_exist_list(var_dict,parse_tree.children[1])):return 'error' # should fix this error by eval. result of second <expr> should be <literal_list>
+    return parse_tree
+
+# <assoc_stmt> -> ( assoc <expr> <expr> )
+def assoc(var_dict,parse_tree,token_list):
+    if(len(token_list)==0):
+        print("there is no argument")
+        return 'error'
+    if(not expr(parse_tree,token_list)):return 'error'
+    if(not expr(parse_tree,token_list)):return 'error'
+    if(len(parse_tree.children)!=2 or len(token_list)!=0):
+        print("cannot match argument")
+        print("please match format to (assoc <expr> <expr>)")
+        return 'error'
+    #if(not is_exist_list(var_dict,parse_tree.children[1])):return 'error' # should fix this error by eval. result of second <expr> should be <literal_list>
+    return parse_tree
+
+# <remove_stmt> -> ( remove <expr> <expr> )
+def remove(var_dict,parse_tree,token_list):
+    if(len(token_list)==0):
+        print("there is no argument")
+        return 'error'
+    if(not expr(parse_tree,token_list)):return 'error'
+    if(not expr(parse_tree,token_list)):return 'error'
+    print(len(parse_tree.children))
+    if(len(parse_tree.children)!=2 or len(token_list)!=0):
+        print("cannot match argument")
+        print("please match format to (remove <expr> <expr>)")
+        return 'error'
+    #if(not is_exist_list(var_dict,parse_tree.children[1])):return 'error' # should fix this error by eval. result of second <expr> should be <literal_list>
+    return parse_tree
+
+# <subst_stmt> -> ( subst <expr> <expr> <expr>)
+def subst(var_dict,parse_tree,token_list):
+    if(len(token_list)==0):
+        print("there is no argument")
+        return 'error'
+    if(not expr(parse_tree,token_list)):return 'error'
+    if(not expr(parse_tree,token_list)):return 'error'
+    if(not expr(parse_tree,token_list)):return 'error'
+    if(len(parse_tree.children)!=3 or len(token_list)!=0):
+        print("cannot match argument")
+        print("please match format to (subst <expr> <expr> <expr>)")
+        return 'error'
+    #if(not is_exist_list(var_dict,parse_tree.children[2])):return 'error' # should fix this error by eval. result of third <expr> should be <literal_list>
+    return parse_tree
+
+# <expr> -> <factor>  | (<stmt>)
+# <stmt> -> (<function> <expr> {<expr>})  # 'parser' function work for this
+# <function> -> + | - | * | / | setq | list | car | cdr | nth | cons | reverse | append | length | assoc | remove | subst | member | ...
 def expr(parse_tree,token_list):
+    if(len(token_list)==0):
+        print("there is no argument")
+        return False
     if(token_list[0][0]=='('):
         new_token=[]
         stack=[]
@@ -185,10 +347,11 @@ def expr(parse_tree,token_list):
 
     return True
 
+# <factor> -> <literal>| <variable> | <string> | <literal_list> | <ident> | <bool>
 def factor(parse_tree,token_list):
     parse_tree.add([TreeNode(token_list.pop(0))])
 
-# 만들어진 파스트리에서 root노드 아래 자식들이 모두 리스트를 가지는지 확인해줌 -> 수정 예정
+# 폐기예정
 def is_exist_list_all(var_dict,parse_tree):
     for i in parse_tree.children:
         if(i.data[0]=='ident'):
@@ -206,7 +369,7 @@ def is_exist_list_all(var_dict,parse_tree):
         elif(i.data[1]=="member"):pass #NIL반환하는 경우를 찾아서 처리해줘야함
 
     return True
-
+# 폐기예정
 def is_exist_list(var_dict,parse_tree):
     if(parse_tree.data[0]=='ident'):
         if(parse_tree.data[1] in var_dict):
@@ -224,7 +387,7 @@ def is_exist_list(var_dict,parse_tree):
     elif(parse_tree.data[1]=="nth"):pass #list를 반환하지 않는 경우를 찾아줘야1
 
     return True
-
+# 폐기예정
 def is_numeric(var_dict,parse_tree):
     if(parse_tree.data[0]=='ident'):
         if(parse_tree.data[1] in var_dict):
@@ -242,7 +405,7 @@ def is_numeric(var_dict,parse_tree):
     elif(parse_tree.data[1]=="nth"):pass #숫자를 반환하지 않는 경우를 찾아줘야1
 
     return True
-
+# 폐기예정
 def is_numeric_all(var_dict,parse_tree):
     for i in parse_tree.children:
         if(i.data[0]=='ident'):
