@@ -101,6 +101,13 @@ def eval(var_dict,tree_root,ident_calc=False):
 
 
 
+
+
+    # TODO eval data0?
+    elif tree_root.data[0] == 'atom':
+        result = function_atom(var_dict, tree_root)
+        return result
+
     """
     elif(tree_root.data[1]==다른함수):
         다른 함수에 대한 eval 함#tn
@@ -536,3 +543,9 @@ def function_subst(var_dict,tree_root):
     return ("literal_list",str)
 
 #########################################ASSOC method###################################################
+
+
+
+#########################################atom method###################################################
+def function_atom (var_dict, tree_root):
+    return ('true', 'true')
