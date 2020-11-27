@@ -1,5 +1,5 @@
 
-function=['+','/','*','-',"setq","list","cdr","car","nth","cons","reverse","append","length","member","assoc","remove","subst","atom","null","numberp","zerop","minusp","equal","stringp","if","cond","cadr"]
+function=['+','/','*','-',"setq","list","cdr","car","nth","cons","reverse","append","length","member","assoc","remove","subst","atom","null","numberp","zerop","minusp","equal","stringp","if","cond","cadr","print"]
 
 
 
@@ -11,21 +11,31 @@ function=['+','/','*','-',"setq","list","cdr","car","nth","cons","reverse","appe
 
 
 def parser(var_dict,token_list):
-    print(token_list)
+    #print(token_list)
     if((';',';') in token_list):
         index=token_list.index((';',';'))
         token_list=token_list[:index]
     if(len(token_list)==0):
         print("there is no readable code")
         return
-    if(token_list.pop(0)[0]!='('):print("there is not first bracket ");return 'error'
-    if(token_list.pop()[0]!=')'): print("there is not end bracket ");return 'error'
+    if(token_list[0][0]!="(" or token_list[-1][0]!=")"):
+        #print(len(token_list))
+        if(token_list[0][0]=="ident"):
+            if(token_list[0][1] in var_dict):
+                return TreeNode(var_dict[token_list[0][1]])
+            else:
+                print("Value Error : there is no "+"'"+token_list[0][1]+"'")
+                raise NotImplementedError
+
+        return TreeNode(token_list.pop(0)) #factor가 바로 들어오는 경우 처리
+    if(token_list.pop(0)[0]!='('):print("there is not first bracket ");return 'error' #(1 2 3)입력했을때 에러가 안뜸 떠야함..
+    if(token_list.pop()[0]!=')'): print("there is not end bracket ");return 'error' # 입력받을때 괄호 안맞으면 에러 낼거니까 나중에 여기 에러 잡는건 없애도 됨.괄호 pop만 해도됨
     funct=token_list.pop(0)
     func=funct[0]
     parse_tree=TreeNode(funct)
     if(not func in function):
         print("there is no function")
-        return
+        raise NotImplementedError
 
     # parsing arithmetic function
     if(func=='+'or func=='/' or func=='*'or func=='-'):
@@ -87,10 +97,25 @@ def parser(var_dict,token_list):
     elif(func=='subst'):
         result=subst(var_dict,parse_tree,token_list)
         return result
-
+    # parsing set of car,cdr function
     elif(func=='cadr'):
         result=cadr(var_dict,parse_tree,token_list,funct[1])
         return result
+    # parsing COND function
+    elif(func=='cond'):
+        result=cond(var_dict,parse_tree,token_list)
+        return result
+
+    # parsing IF function
+    elif(func=='if'):
+        result=if_stmt(var_dict,parse_tree,token_list)
+        return result
+    # parsing Print function
+    elif(func=='print'):
+        result=print_stmt(var_dict,parse_tree,token_list)
+        return result
+
+
     """
     elif(func==다른함수):
         다른 함수에 대한 parse 함수
@@ -115,7 +140,7 @@ def calc(var_dict,parse_tree,token_list):
 # <setq_stmt> -> ( setq <ident> <expr> ... )
 def set_q(parse_tree,token_list):
     if(len(token_list)==0):
-        print("there is no argument")
+        print("SETQ : there is no argument")
         return 'error'
 
     while(len(token_list)>0):
@@ -123,7 +148,7 @@ def set_q(parse_tree,token_list):
         if(not expr(parse_tree,token_list)):return 'error'
 
     if(len(token_list)!=0):
-        print("cannot match argument")
+        print("SETQ : cannot match argument")
         print("please match format to (setq <ident> <expr> <ident> <expr> ...)")
         return 'error'
 
@@ -341,6 +366,82 @@ def subst(var_dict,parse_tree,token_list):
         return 'error'
 
     return parse_tree
+
+# <cond_stmt> -> ( cond (<expr> <expr>) ... )
+def cond(var_dict,parse_tree,token_list):
+    if(len(token_list)==0):
+        print("COND : there is no argument")
+        return 'error'
+    cnt=0
+    while(len(token_list)>0):
+        stack=[]
+        i=0
+        new_token=[]
+        while(1):
+            temp=token_list[i]
+            if(temp[0]=="("):
+                stack.append(temp)
+
+            elif(temp[0]==")"):
+                stack.pop()
+
+            new_token.append(temp)
+            if(len(stack)==0):
+                break;
+            i=i+1
+        if(new_token[0][0]!="(" or new_token[-1][0]!=")" or len(new_token)==2):
+            print("COND : cannot match argument")
+            print("please match format to (COND (<expr> <expr>) (<expr> <expr>) ...)")
+            return "error"
+        new_token=new_token[1:-1]
+        del token_list[:i+1]
+        if(not expr(parse_tree,new_token)):return 'error'
+        else:cnt=cnt+1
+        if(not expr(parse_tree,new_token)):return 'error'
+        else:cnt=cnt+1
+
+    if(len(token_list)!=0 or (cnt%2)!=0):
+        print("COND : cannot match argument")
+        print("please match format to (COND (<expr> <expr>) (<expr> <expr>) ...)")
+        return 'error'
+
+    return parse_tree
+
+# <if_stmt> -> ( if <expr> <expr> [<expr>] )
+def if_stmt(var_dict,parse_tree,token_list):
+    if(len(token_list)==0):
+        print("IF : there is no argument")
+        return 'error'
+
+    cnt=0
+    while(len(token_list)>0):
+        if(not expr(parse_tree,token_list)):return 'error'
+        else:cnt=cnt+1
+
+
+    if(len(token_list)!=0 or (cnt!=2 and cnt!=3)):
+        print("IF : cannot match argument")
+        print("please match format to (IF <expr> <expr> [<expr>]))")
+        return 'error'
+
+    return parse_tree
+
+# <print_stmt> -> ( print <expr> )
+def print_stmt(var_dict,parse_tree,token_list):
+
+    if(len(token_list)==0):
+        print("PRINT : there is no argument")
+        return 'error'
+
+    if(not expr(parse_tree,token_list)):return 'error'
+
+    if(len(token_list)!=0 ):
+        print("PRINT : cannot match argument")
+        print("please match format to ( PRINT <expr>)")
+        return 'error'
+
+    return parse_tree
+
 
 # <expr> -> <factor>  | (<stmt>)
 # <stmt> -> (<function> <expr> {<expr>})  # 'parser' function work for this

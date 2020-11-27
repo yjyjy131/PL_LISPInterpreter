@@ -60,6 +60,7 @@ def symbol(lex):
     elif(fun_cadr.match(cmpstr)!=None):return "cadr" # 조합을 'c[ad]+r'이라는 정규표현식으로 나타냄
     elif(cmpstr=="t"):return "true"
     elif(cmpstr=="nil"):return"false"
+    elif(cmpstr=="print"):return"print"
     else:return "ident"
 
 def lookup(ch):

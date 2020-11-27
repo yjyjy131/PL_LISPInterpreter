@@ -39,7 +39,7 @@ def eval(var_dict,tree_root,ident_calc=False):
     elif tree_root.data[0]=='ident':
         result=function_ident(var_dict,tree_root,ident_calc)
         return result
-# 정상적으로 작동하나 수정사항 있음(반환값 아직 없음)
+
     # if it is parse_tree of arithmetic function
     elif tree_root.data[0] in ['/','*','+','-']:
         result = function_calculus(var_dict,tree_root)
@@ -99,6 +99,17 @@ def eval(var_dict,tree_root,ident_calc=False):
         result=function_subst(var_dict,tree_root)
         return result
 
+    elif tree_root.data[0] == 'cond':
+        result=function_cond(var_dict,tree_root)
+        return result
+
+    elif tree_root.data[0] == 'if':
+        result=function_if(var_dict,tree_root)
+        return result
+
+    elif tree_root.data[0] == 'print':
+        result=function_print(var_dict,tree_root)
+        return result
 
 
     """
@@ -313,6 +324,7 @@ def function_car(var_dict,tree_root):
         print("CAR Type Error")
         raise NotImplementedError
     list_py = literal_list_to_list(literal_list[1])
+    if(len(list_py)==0):return ("false", "nil")
     first_element=list_py[0]
     token=detect_token(first_element)
     return (token, first_element)
@@ -348,7 +360,7 @@ def function_nth(var_dict,tree_root):
         raise NotImplementedError
 
     number=float_or_int(result1[1])
-    print(number)
+    #print(number)
     if(type(number)!=int or number<0):
         print("NTH Type Error : First argument should be Natural Number")
         raise NotImplementedError
@@ -536,3 +548,64 @@ def function_subst(var_dict,tree_root):
     return ("literal_list",str)
 
 #########################################ASSOC method###################################################
+
+#########################################COND method###################################################
+def function_cond(var_dict,tree_root):
+
+    if len(tree_root.children)%2!=0:
+        return "Error : COND parameter number should be even"
+    check=False
+    for index, child in enumerate(tree_root.children):
+        if (index%2)==0:
+            result1=eval(var_dict,child,True)
+            if(type_check(var_dict,result1)!="false"):
+                check=True
+        elif (index%2)!=0:
+            result2=eval(var_dict,child,True)
+            if(check):
+                return result2
+
+    return ("false","nil")
+
+#########################################COND method###################################################
+
+#########################################IF method###################################################
+def function_if(var_dict,tree_root):
+
+    result1=eval(var_dict,tree_root.children[0],True)
+
+    if(type_check(var_dict,result1)=="false"):
+        if(len(tree_root.children)==3):
+            result3=eval(var_dict,tree_root.children[2],True)
+            return result3
+        else:
+            return ("false","nil")
+
+    else:
+        result2=eval(var_dict,tree_root.children[1],True)
+        return result2
+
+#########################################IF method###################################################
+
+
+########################################print method###################################################
+def function_print(var_dict,tree_root):
+
+    result1=eval(var_dict,tree_root.children[0],True)
+
+    return result1
+
+#########################################IF method###################################################
+
+
+
+def post_eval(tree_root, result):
+    print(result[1])
+    return None
+
+
+#인터프리터 반환값 출력용
+def sementic_analysis(var_dict, tree_root):
+    result = eval(var_dict, tree_root, ident_calc=False)
+    post_eval(tree_root, result)
+    return None
