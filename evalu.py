@@ -520,11 +520,16 @@ def function_subst(var_dict,tree_root):
     list_py = literal_list_to_list(result3[1])
 
     str="("
-    for i in list_py:
+    if(result2==(detect_token(list_py[0]),list_py[0])):
+        str=str+result1[1]
+    else:
+        str=str+list_py[0]
+
+    for i in list_py[1:]:
         if(result2==(detect_token(i),i)):
-            str=str+result1[1]
+            str=str+" "+result1[1]
         else:
-            str=str+i
+            str=str+" "+i
     str=str+")"
     #print(str)
 
