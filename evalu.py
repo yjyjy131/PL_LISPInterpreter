@@ -99,14 +99,41 @@ def eval(var_dict,tree_root,ident_calc=False):
         result=function_subst(var_dict,tree_root)
         return result
 
-
-
-
-
     # TODO eval data0?
     elif tree_root.data[0] == 'atom':
-        print('atom 트리 구조 체크 / 루트는 ' + tree_root.data[0])
-        result = function_atom(var_dict, tree_root)
+        result = func_atom(var_dict, tree_root)
+        return result
+
+    elif tree_root.data[0] == 'null': 
+        result = func_null(var_dict, tree_root)
+        return result
+
+    elif tree_root.data[0] == 'numberp':
+        result = func_numberp(var_dict, tree_root)
+        return result
+
+    elif tree_root.data[0] == 'zerop':
+        result = func_zerop(var_dict, tree_root)
+        return result
+
+    elif tree_root.data[0] == 'minusp':
+        result = func_minusp(var_dict, tree_root)
+        return result
+
+    elif tree_root.data[0] == 'equal':
+        result = func_eqaul(var_dict, tree_root)
+        return result
+
+    elif tree_root.data[0] == '<':
+        result = func_less_than(var_dict, tree_root)
+        return result
+
+    elif tree_root.data[0] == '>=':
+        result = func_greater_equal(var_dict, tree_root)
+        return result
+
+    elif tree_root.data[0] == 'stringp':
+        result = func_stringp(var_dict, tree_root)
         return result
 
     """
@@ -343,10 +370,6 @@ def function_cdr(var_dict,tree_root):
 
 #########################################cdr method###################################################
 
-
-
-
-
 #########################################nth method###################################################
 def function_nth(var_dict,tree_root):
 
@@ -548,13 +571,46 @@ def function_subst(var_dict,tree_root):
 
 
 #########################################atom method###################################################
-def function_atom (var_dict, tree_root):
+def func_atom (var_dict, tree_root):
     # 현재 tree 에 ident 이후로 값이 없고
     # var dict 에 이미 값이 저장되어 있는 경우 false
-
     ident_chk = tree_root.children[0].data[0]
     if ( ident_chk == 'ident' and tree_root.children[0].isleaf()):
         return ("true", "true")
     else: 
         return ("false", "nil")
-     
+    
+#########################################null method###################################################
+def  func_null (var_dict, tree_root):
+    # tree_root.children[0].data[0]  ident
+    # tree_root.children[0].data[1]  x
+
+    value = var_dict[tree_root.children[0].data[1]]
+    if(value[0] == 'false'):
+        return ("true", "true")
+    else:
+        return ("false", "nil")
+
+#########################################numberp method###################################################
+def func_numberp(var_dict, tree_root):
+    return ("true", "true")
+
+#########################################zerop method###################################################
+def func_zerop(var_dict, tree_root):
+    return ("true", "true")
+
+#########################################equal method###################################################
+def func_eqaul(var_dict, tree_root):
+    return ("true", "true")
+#########################################less_than method###################################################
+def func_less_than(var_dict, tree_root):
+    return ("true", "true")
+
+#########################################greater_equal method###################################################
+def func_greater_equal(var_dict, tree_root):
+    return ("true", "true")
+
+#########################################strigp method###################################################
+def func_stringp(var_dict, tree_root):
+    return ("true", "true")
+
