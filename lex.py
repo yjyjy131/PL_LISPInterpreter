@@ -9,7 +9,7 @@ buffersize=0
 lexLen=0
 nextChar=str()
 token_list=[]
-
+fun_cadr=re.compile('c[ad]+r')
 
     #lexer makes token_list(list of tuple) by input_string(string) from user.
     #lexer maps lexeme and corresponding token.
@@ -57,7 +57,7 @@ def symbol(lex):
     elif(cmpstr=="stringp"):return "stringp"
     elif(cmpstr=="if"):return "if"
     elif(cmpstr=="cond"):return "cond"
-    elif(cmpstr=="caddr"):return "caddr" #car+cdr 조합은 곧 만들 예정
+    elif(fun_cadr.match(cmpstr)!=None):return "cadr" # 조합을 'c[ad]+r'이라는 정규표현식으로 나타냄
     elif(cmpstr=="t"):return "true"
     elif(cmpstr=="nil"):return"false"
     else:return "ident"
