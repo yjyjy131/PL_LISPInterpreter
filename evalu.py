@@ -50,6 +50,13 @@ def eval(var_dict,tree_root,ident_calc=False):
         result=function_cdr(var_dict,tree_root)
         return result
 
+
+
+    # TODO eval data0?
+    elif tree_root.data[0] == 'atom':
+        result = function_atom(var_dict, tree_root)
+        return result
+
     """
     elif(tree_root.data[1]==다른함수):
         다른 함수에 대한 eval 함#tn
@@ -211,3 +218,9 @@ def function_cdr(var_dict,tree_root):
     new_literal_list_py=list_py[1:]
     new_literal_list='('+" ".join(new_literal_list_py)+')'
     return ('literal_list',new_literal_list )
+
+
+
+#########################################atom method###################################################
+def function_atom (var_dict, tree_root):
+    return ('true', 'true')

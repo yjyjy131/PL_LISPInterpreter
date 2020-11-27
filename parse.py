@@ -71,6 +71,43 @@ def parser(var_dict,token_list):
     elif(func=='length'):
         result=length(var_dict,parse_tree,token_list)
         return result
+
+    # parsing ATOM function  X가 ATOM(심볼)일 때만 참(true)를 반환
+    elif(func=='atom'):
+        result=atom(var_dict, parse_tree, token_list)
+        return result
+    #parsing NULL function X가 NIL일 때만 참(true)을 반환
+    elif(func=='null'):
+        result=null_chk(var_dict, parse_tree, token_list)
+        return result
+    #parsing NUMBERP function X가 숫자일 때만 참(true)을 반환
+    elif(func=='numberp'):
+        result=numberp(var_dict, parse_tree, token_list)
+        return result
+    #parsing ZEROP function X가 0일 때만 참(true)을 반환함. X가 숫자가 아니면 ERROR
+    elif(func=='zerop'):
+        result=zerop(var_dict, parse_tree, token_list)
+        return result
+    #parsing MINUSP function X가 음수일 때만 참(true)을 반환함. X가 숫자가 아니면 ERROR
+    elif(func=='minusp'):
+        result=minusp(var_dict, parse_tree, token_list)
+        return result
+    #parsing EQUAL function  X와 Y가 같으면 참(true)을 반환
+    elif(func=='equal'):
+        result=eqaul_chk(var_dict, parse_tree, token_list)
+        return result
+    #parsing < function X < Y 이면 참(true)을 반환
+    elif(func=='<'):
+        result=less_than(var_dict, parse_tree, token_list)
+        return result
+    #parsing >= function  X >= Y 이면 참(true)을 반환
+    elif(func=='>='):
+        result=greater_equal(var_dict, parse_tree, token_list)
+        return result
+    #parsing STRINGP function X가 STRING일 때만 참(true)을 반환
+    elif(func=='stringp'):
+        result=stringp(var_dict, parse_tree, token_list)
+        return result
     """
     elif(func==다른함수):
         다른 함수에 대한 parse 함수
@@ -152,6 +189,49 @@ def length(var_dict,parse_tree,token_list):
     if(not expr(parse_tree,token_list)):return 'error'
     if(not is_exist_list_all(var_dict,parse_tree)):return 'error'
     return parse_tree
+
+
+# parsing ATOM function
+def atom(var_dict, parse_tree, token_list):
+    temp = token_list[0]
+    if(temp[0]!='ident'): print("error"); return 'error'
+    else:
+        factor(parse_tree,token_list)
+        return parse_tree
+  
+#parsing NULL function 
+def null_chk(var_dict, parse_tree, token_list):
+    return parse_tree
+
+#parsing NUMBERP function 
+def numberp(var_dict, parse_tree, token_list):
+    return parse_tree
+
+#parsing ZEROP function 
+def zerop(var_dict, parse_tree, token_list):
+    return parse_tree
+
+#parsing MINUSP function 
+def minusp(var_dict, parse_tree, token_list):
+    return parse_tree
+
+#parsing EQUAL function 
+def eqaul_chk(var_dict, parse_tree, token_list):
+    return parse_tree
+
+#parsing < function
+def less_than(var_dict, parse_tree, token_list):
+    return parse_tree
+
+#parsing >= function 
+def greater_equal(var_dict, parse_tree, token_list):
+    return parse_tree
+
+#parsing STRINGP function 
+def stringp(var_dict, parser_tree, token_list):
+    return stringp
+
+
 
 def expr(parse_tree,token_list):
     if(token_list[0][0]=='('):
@@ -261,6 +341,7 @@ def is_numeric_all(var_dict,parse_tree):
         elif(i.data[1]=="nth"):pass #숫자를 반환하지 않는 경우를 찾아줘야1
 
     return True
+
 #for making parse_tree
 class TreeNode(object):
     def __init__(self,data, children=[]):

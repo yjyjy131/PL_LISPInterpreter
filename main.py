@@ -11,7 +11,7 @@ import evalu
 print("LISP Interpreter")
 var_dict={}
 while(1):
-  buffer=input('>')
-  result=evalu.eval(var_dict,parse.parser(var_dict,lex.lexer(buffer)))
-  print(result)
+  buffer=input('>') 
+  result=evalu.eval(var_dict,parse.parser(var_dict,lex.lexer(buffer))) 
+  print("결과는 " + result)
   print(var_dict)
