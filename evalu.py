@@ -105,6 +105,7 @@ def eval(var_dict,tree_root,ident_calc=False):
 
     # TODO eval data0?
     elif tree_root.data[0] == 'atom':
+        print('atom 트리 구조 체크 / 루트는 ' + tree_root.data[0])
         result = function_atom(var_dict, tree_root)
         return result
 
@@ -548,4 +549,12 @@ def function_subst(var_dict,tree_root):
 
 #########################################atom method###################################################
 def function_atom (var_dict, tree_root):
-    return ('true', 'true')
+    # 현재 tree 에 ident 이후로 값이 없고
+    # var dict 에 이미 값이 저장되어 있는 경우 false
+
+    ident_chk = tree_root.children[0].data[0]
+    if ( ident_chk == 'ident' and tree_root.children[0].isleaf()):
+        return ("true", "true")
+    else: 
+        return ("false", "nil")
+     

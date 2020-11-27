@@ -386,7 +386,7 @@ def subst(var_dict,parse_tree,token_list):
 # parsing ATOM function
 def atom(var_dict, parse_tree, token_list):
     temp = token_list[0]
-    if(temp[0]!='ident'): print("error"); return 'error'
+    if (temp[0]!='ident'): print("error"); return 'error'
     else:
         factor(parse_tree,token_list)
         return parse_tree
@@ -422,7 +422,6 @@ def greater_equal(var_dict, parse_tree, token_list):
 #parsing STRINGP function 
 def stringp(var_dict, parser_tree, token_list):
     return stringp
-
 
 
 def expr(parse_tree,token_list):
