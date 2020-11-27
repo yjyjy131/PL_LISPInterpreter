@@ -572,14 +572,13 @@ def function_subst(var_dict,tree_root):
 
 #########################################atom method###################################################
 def func_atom (var_dict, tree_root):
-    # 현재 tree 에 ident 이후로 값이 없고
-    # var dict 에 이미 값이 저장되어 있는 경우 false
-    ident_chk = tree_root.children[0].data[0]
-    if ( ident_chk == 'ident' and tree_root.children[0].isleaf()):
+
+    value = var_dict[tree_root.children[0].data[1]]
+    if(value[0] == 'variable'):
         return ("true", "true")
-    else: 
+    else:
         return ("false", "nil")
-    
+
 #########################################null method###################################################
 def  func_null (var_dict, tree_root):
     # tree_root.children[0].data[0]  ident
@@ -593,11 +592,24 @@ def  func_null (var_dict, tree_root):
 
 #########################################numberp method###################################################
 def func_numberp(var_dict, tree_root):
-    return ("true", "true")
+    value = var_dict[tree_root.children[0].data[1]]
+    if(value[0] == 'literal'):
+        return ("true", "true")
+    else:
+        return ("false", "nil")
 
 #########################################zerop method###################################################
 def func_zerop(var_dict, tree_root):
-    return ("true", "true")
+    value = var_dict[tree_root.children[0].data[1]]
+    print(테스트)
+    print(value)
+    if(value[0] =='literal'):
+        if(value[0] == 0):
+            return ("true", "true")
+        else:
+            return ("false", "nil")   
+    else:
+        return ("error", "error")
 
 #########################################equal method###################################################
 def func_eqaul(var_dict, tree_root):
