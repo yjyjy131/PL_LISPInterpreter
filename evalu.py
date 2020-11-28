@@ -592,17 +592,21 @@ def  func_null (var_dict, tree_root):
 
 #########################################numberp method###################################################
 def func_numberp(var_dict, tree_root):
-    value = var_dict[tree_root.children[0].data[1]]
-    if(value[0] == 'literal'):
+    value = tree_root.children[0].data[0]
+    if(value == 'literal'):
         return ("true", "true")
     else:
-        return ("false", "nil")
+        value = var_dict[tree_root.children[0].data[1]]
+        if(value[0] == 'literal'):
+            return ("true", "true")
+        else:
+            return ("false", "nil")
 
 #########################################zerop method###################################################
 def func_zerop(var_dict, tree_root):
     value = var_dict[tree_root.children[0].data[1]]
-    print(테스트)
-    print(value)
+    
+    
     if(value[0] =='literal'):
         if(value[0] == 0):
             return ("true", "true")
