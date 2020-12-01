@@ -415,8 +415,13 @@ def numberp(var_dict, parse_tree, token_list):
 
 #parsing ZEROP function 
 def zerop(var_dict, parse_tree, token_list):
-    
-    return parse_tree
+    temp = token_list[0]
+    if (temp[0]!='ident' and temp[0]!='literal'): 
+        print("error")
+        return "error"
+    else:
+        factor(parse_tree, token_list)
+    return parse_tree 
 
 #parsing MINUSP function 
 def minusp(var_dict, parse_tree, token_list):

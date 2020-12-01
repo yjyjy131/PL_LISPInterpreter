@@ -581,9 +581,6 @@ def func_atom (var_dict, tree_root):
 
 #########################################null method###################################################
 def  func_null (var_dict, tree_root):
-    # tree_root.children[0].data[0]  ident
-    # tree_root.children[0].data[1]  x
-
     value = var_dict[tree_root.children[0].data[1]]
     if(value[0] == 'false'):
         return ("true", "true")
@@ -604,14 +601,25 @@ def func_numberp(var_dict, tree_root):
 
 #########################################zerop method###################################################
 def func_zerop(var_dict, tree_root):
-    value = var_dict[tree_root.children[0].data[1]]
-    
-    
-    if(value[0] =='literal'):
-        if(value[0] == 0):
+    # tree_root.children[0].data[0]  ident
+    # tree_root.children[0].data[1]  x
+    typeValue = tree_root.children[0].data[0]
+    value = tree_root.children[0].data[1]
+
+    if(typeValue == 'literal'):
+        if(value == '0'):
             return ("true", "true")
         else:
-            return ("false", "nil")   
+            return ("false", "nil")  
+    elif(typeValue == 'ident'):
+        identVal = var_dict[tree_root.children[0].data[1]];
+        if (identVal[0] == 'literal'):
+            if(identVal[1]=='0'):
+                return ("true", "true")
+            else:
+                return ("false", "nil")
+        else: 
+            return ("error", "error")
     else:
         return ("error", "error")
 
