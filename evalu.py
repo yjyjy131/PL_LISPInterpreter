@@ -601,10 +601,8 @@ def func_numberp(var_dict, tree_root):
 
 #########################################zerop method###################################################
 def func_zerop(var_dict, tree_root):
-    # tree_root.children[0].data[0]  ident
-    # tree_root.children[0].data[1]  x
     typeValue = tree_root.children[0].data[0]
-    value = tree_root.children[0].data[1]
+    value = int(tree_root.children[0].data[1])
 
     if(typeValue == 'literal'):
         if(value == '0'):
@@ -614,7 +612,7 @@ def func_zerop(var_dict, tree_root):
     elif(typeValue == 'ident'):
         identVal = var_dict[tree_root.children[0].data[1]];
         if (identVal[0] == 'literal'):
-            if(identVal[1]=='0'):
+            if(identVal[1] =='0'):
                 return ("true", "true")
             else:
                 return ("false", "nil")
@@ -623,8 +621,34 @@ def func_zerop(var_dict, tree_root):
     else:
         return ("error", "error")
 
+#########################################minusp method###################################################
+def func_minusp(var_dict, tree_root):
+    typeValue = tree_root.children[0].data[0]
+
+    if(typeValue == 'literal'):
+        value = int(tree_root.children[0].data[1])
+        if(value < 0):
+            return ("true", "true")
+        else:
+            return ("false", "nil")  
+    elif(typeValue == 'ident'):
+        identVal = var_dict[tree_root.children[0].data[1]];
+        if (identVal[0] == 'literal'):
+            if(int(identVal[1]) < 0):
+                return ("true", "true")
+            else:
+                return ("false", "nil")
+        else: 
+            return ("error", "error")
+    else:
+        return ("error", "error")
+
+
 #########################################equal method###################################################
 def func_eqaul(var_dict, tree_root):
+    # tree_root.children[0].data[0]  ident
+    # tree_root.children[0].data[1]  x
+    
     return ("true", "true")
 #########################################less_than method###################################################
 def func_less_than(var_dict, tree_root):
