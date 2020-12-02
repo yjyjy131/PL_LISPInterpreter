@@ -1,5 +1,5 @@
 
-function=['+','/','*','-',"setq","list","cdr","car","nth","cons","reverse","append","length","member","assoc","remove","subst","atom","null","numberp","zerop","minusp","equal","<",">=","stringp","if","cond","cadr"]
+function=['+','/','*','-',"setq","list","cdr","car","nth","cons","reverse","append","length","member","assoc","remove","subst","atom","null","numberp","zerop","minusp","equal","<","=","stringp","if","cond","cadr"]
 
 
 
@@ -22,6 +22,11 @@ def parser(var_dict,token_list):
     if(token_list.pop()[0]!=')'): print("there is not end bracket ");return 'error'
     funct=token_list.pop(0)
     func=funct[0]
+
+    if(func == '>'):
+        funct=token_list.pop(0)
+        func=funct[0]
+        
     parse_tree=TreeNode(funct)
     if(not func in function):
         print("there is no function")
@@ -121,7 +126,7 @@ def parser(var_dict,token_list):
         result=less_than(var_dict, parse_tree, token_list)
         return result
     #parsing >= function  X >= Y 이면 참(true)을 반환
-    elif(func=='>='):
+    elif(func=='='):
         result=greater_equal(var_dict, parse_tree, token_list)
         return result
     #parsing STRINGP function X가 STRING일 때만 참(true)을 반환

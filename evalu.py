@@ -128,7 +128,7 @@ def eval(var_dict,tree_root,ident_calc=False):
         result = func_less_than(var_dict, tree_root)
         return result
 
-    elif tree_root.data[0] == '>=':
+    elif tree_root.data[0] == '=':
         result = func_greater_equal(var_dict, tree_root)
         return result
 
@@ -761,7 +761,67 @@ def func_less_than(var_dict, tree_root):
 
 #########################################greater_equal method###################################################
 def func_greater_equal(var_dict, tree_root):
-    return ("true", "true")
+    firType = tree_root.children[0].data[0]
+    secType = tree_root.children[1].data[0]
+
+    firVal = tree_root.children[0].data[1]
+    secVal = tree_root.children[1].data[1]
+
+    # literal str to int
+    if(firType == 'literal'):
+        firVal = int(firVal)
+    
+    if(secType == 'literal'):
+        secVal = int(secVal)
+
+    # ident 인 경우 null 체크
+    if(firType == 'ident'):
+        if (var_dict.get(firVal)) is None:
+            print("Variable doesn't have value")
+            return ("error", "error")
+        else:
+            identChk = var_dict.get(firVal)
+            if(identChk[0] == 'literal'):
+                firVal = int(identChk[1])
+            else:
+                firVal = identChk[1]  
+
+    if(secType == 'ident'):
+        if(var_dict.get(secVal)) is None:
+            print("Variable doesn't have value")
+            return ("error", "error")
+        else:
+            identChk = var_dict.get(secVal)
+            if(identChk[0] == 'literal'):
+                secVal = int(identChk[1])
+            else:
+                secVal = identChk[1]
+            
+    # 비교할 값의 타입들이 같은지 체크
+    if( type(firVal) == type(secVal)):
+        # 같은 타입 or 둘 다 ident 
+        if(firType == secType):
+            if(firVal >= secVal):
+                return ("true", "true") 
+            else:
+                return ("false", "nil")
+
+        # 하나만 ident
+        elif(firType != secType):
+            if(firType == 'ident'):
+                if(firVal >= secVal):
+                    return ("true", "true") 
+                else:
+                    return ("false", "nil")        
+            elif(secType == 'ident'):
+                if(firVal >= secVal):
+                    return ("true", "true") 
+                else:
+                    return ("false", "nil")
+            else:
+                return ("false", "nil")
+    else:
+        print("Function < not supported between different type")
 
 #########################################strigp method###################################################
 def func_stringp(var_dict, tree_root):
