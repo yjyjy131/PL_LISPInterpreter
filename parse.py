@@ -391,12 +391,13 @@ def subst(var_dict,parse_tree,token_list):
 # parsing ATOM function
 def atom(var_dict, parse_tree, token_list):
     temp = token_list[0]
-    if (temp[0]!='ident'): 
-        print("error") 
-        return "error"
-    else:
+    if (temp[0] == 'ident' or temp[0] == 'variable'):
         factor(parse_tree, token_list)
         return parse_tree
+    else:
+        print("error") 
+        return "error"
+
   
 #parsing NULL function 
 def null_chk(var_dict, parse_tree, token_list):
@@ -410,18 +411,19 @@ def null_chk(var_dict, parse_tree, token_list):
 
 #parsing NUMBERP function   
 def numberp(var_dict, parse_tree, token_list):
-    temp = token_list[0]
-    if (temp[0]!='ident' and temp[0]!='literal'): 
-        print("error")
-        return "error"
+    if (len(token_list)==1): 
+        while(len(token_list)>0):
+            if(not expr(parse_tree, token_list)):return 'error'
+        return parse_tree
     else:
-        factor(parse_tree, token_list)
-    return parse_tree
+        print("numberp function parameter out of range")
+        return "error"
 
 #parsing ZEROP function 
 def zerop(var_dict, parse_tree, token_list):
     temp = token_list[0]
     if (temp[0]!='ident' and temp[0]!='literal'): 
+        factor(parse_tree, token_list)
         print("error")
         return "error"
     else:

@@ -572,16 +572,29 @@ def function_subst(var_dict,tree_root):
 
 #########################################atom method###################################################
 def func_atom (var_dict, tree_root):
-    value = var_dict[tree_root.children[0].data[1]]
-    if(value[0] == 'variable'):
+    typeValue = tree_root.children[0].data[0]
+
+    if(typeValue == 'variable'):
         return ("true", "true")
+    elif(typeValue == 'ident'):
+        value = var_dict.get(tree_root.children[0].data[1])
+        if value is not None:
+            if(value[0] == 'ident'):
+                return ("true", "true")
+            else:
+                return ("false", "nil")
+        else:
+            return ("false", "nil")
     else:
         return ("false", "nil")
 
+    
+
 #########################################null method###################################################
 def  func_null (var_dict, tree_root):
-    value = var_dict[tree_root.children[0].data[1]]
-    if(value[0] == 'false'):
+    value = var_dict.get(tree_root.children[0].data[1])
+
+    if(value[1] == 'nil'):
         return ("true", "true")
     else:
         return ("false", "nil")
@@ -589,10 +602,11 @@ def  func_null (var_dict, tree_root):
 #########################################numberp method###################################################
 def func_numberp(var_dict, tree_root):
     value = tree_root.children[0].data[0]
+
     if(value == 'literal'):
         return ("true", "true")
     else:
-        value = var_dict[tree_root.children[0].data[1]]
+        value = var_dict.get(tree_root.children[0].data[1])
         if(value[0] == 'literal'):
             return ("true", "true")
         else:
@@ -601,24 +615,26 @@ def func_numberp(var_dict, tree_root):
 #########################################zerop method###################################################
 def func_zerop(var_dict, tree_root):
     typeValue = tree_root.children[0].data[0]
-    value = int(tree_root.children[0].data[1])
 
     if(typeValue == 'literal'):
+        value = tree_root.children[0].data[1]
         if(value == '0'):
             return ("true", "true")
         else:
             return ("false", "nil")  
+
     elif(typeValue == 'ident'):
-        identVal = var_dict[tree_root.children[0].data[1]];
-        if (identVal[0] == 'literal'):
-            if(identVal[1] =='0'):
-                return ("true", "true")
-            else:
+        identVal = var_dict.get(tree_root.children[0].data[1])
+        if identVal is not None:
+            if (identVal[0] == 'literal'):
+                if(identVal[1] =='0'):
+                    return ("true", "true")
+                else:
+                    return ("false", "nil")
+            else: 
                 return ("false", "nil")
-        else: 
-            return ("error", "error")
-    else:
-        return ("error", "error")
+        else:
+            return ("false", "nil")
 
 #########################################minusp method###################################################
 def func_minusp(var_dict, tree_root):
@@ -630,24 +646,25 @@ def func_minusp(var_dict, tree_root):
             return ("true", "true")
         else:
             return ("false", "nil")  
+
     elif(typeValue == 'ident'):
-        identVal = var_dict[tree_root.children[0].data[1]]
-        if (identVal[0] == 'literal'):
-            if(int(identVal[1]) < 0):
-                return ("true", "true")
+        identVal = var_dict.get(tree_root.children[0].data[1])
+        if identVal is not None:
+            if (identVal[0] == 'literal'):
+                if(int(identVal[1]) < 0):
+                    return ("true", "true")
+                else:
+                    return ("false", "nil")
             else:
                 return ("false", "nil")
         else: 
-            return ("error", "error")
+            return ("false", "nil")
     else:
-        return ("error", "error")
+        return ("false", "nil")
 
 
 #########################################equal method###################################################
 def func_eqaul(var_dict, tree_root):
-# tree_root.children[0].data[0]  ident
-# tree_root.children[0].data[1]  x
-
     firType = tree_root.children[0].data[0]
     secType = tree_root.children[1].data[0]
 
@@ -827,10 +844,6 @@ def func_greater_equal(var_dict, tree_root):
 def func_stringp(var_dict, tree_root):
     typeValue = tree_root.children[0].data[0]
     value = tree_root.children[0].data[1]
-
-    print("테스트")
-    print(typeValue)
-    print(value)
 
     if(typeValue =='string'):
         return ("true", "true")
