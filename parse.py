@@ -1,5 +1,5 @@
 
-function=['+','/','*','-',"setq","list","cdr","car","nth","cons","reverse","append","length","member","assoc","remove","subst","atom","null","numberp","zerop","minusp","equal","stringp","if","cond","cadr"]
+function=['+','/','*','-',"setq","list","cdr","car","nth","cons","reverse","append","length","member","assoc","remove","subst","atom","null","numberp","zerop","minusp","equal","<",">=","stringp","if","cond","cadr"]
 
 
 
@@ -443,20 +443,25 @@ def equal_chk(var_dict, parse_tree, token_list):
         print("equal function parameter out of range")
         return "error" 
 
-
 #parsing < function
 def less_than(var_dict, parse_tree, token_list):
-# 변수 2개 이상 선언시 {'x': ('string', '"aa"'), 'y': ('string', '"af"')}
-# equal X Y  [('(', '('), ('setq', 'setq'), ('ident', 'y'), ('string', '"af"'), (')', ')')]
-# equal X 5
-# equal 5 Y 
-# equal X Y
-
-    return parse_tree
+    if (len(token_list)==2): 
+        while(len(token_list)>0):
+            if(not expr(parse_tree, token_list)):return 'error'
+        return parse_tree
+    else:
+        print("less than function parameter out of range")
+        return "error" 
 
 #parsing >= function 
 def greater_equal(var_dict, parse_tree, token_list):
-    return parse_tree
+    if (len(token_list)==2): 
+        while(len(token_list)>0):
+            if(not expr(parse_tree, token_list)):return 'error'
+        return parse_tree
+    else:
+        print("greater equal function parameter out of range")
+        return "error" 
 
 #parsing STRINGP function
 def stringp(var_dict, parse_tree, token_list):
