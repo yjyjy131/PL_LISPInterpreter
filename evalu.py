@@ -572,7 +572,6 @@ def function_subst(var_dict,tree_root):
 
 #########################################atom method###################################################
 def func_atom (var_dict, tree_root):
-
     value = var_dict[tree_root.children[0].data[1]]
     if(value[0] == 'variable'):
         return ("true", "true")
@@ -646,10 +645,55 @@ def func_minusp(var_dict, tree_root):
 
 #########################################equal method###################################################
 def func_eqaul(var_dict, tree_root):
-    # tree_root.children[0].data[0]  ident
-    # tree_root.children[0].data[1]  x
+# tree_root.children[0].data[0]  ident
+# tree_root.children[0].data[1]  x
 
-    return ("true", "true")
+    firType = tree_root.children[0].data[0]
+    secType = tree_root.children[1].data[0]
+
+    firVal = tree_root.children[0].data[1]
+    secVal = tree_root.children[1].data[1]
+
+    # 같은 타입 or 둘 다 ident 
+    if(firType == secType):
+        if(firType == 'ident'):
+            if (var_dict.get(firVal)==var_dict.get(secVal)):
+                return ("true", "true") 
+            else:
+                return ("false", "nil")
+        else:
+            if(firVal == secVal):
+                return ("true", "true")
+            else:
+                return ("false", "nil")
+                
+    # 하나만 ident
+    elif(firType != secType):
+        if(firType == 'ident'):
+            firVal = var_dict[tree_root.children[0].data[1]]
+            if(firVal[1] == secVal):
+                return ("true", "true") 
+            else:
+                return ("false", "nil")
+        elif(secType == 'ident'):
+            secVal = var_dict[tree_root.children[1].data[1]]
+            if(secVal[1] == firVal):
+                return ("true", "true") 
+            else:
+                return ("false", "nil")
+        else:
+            return ("false", "nil")
+
+    # 둘다 ident 가 아니다
+    elif(firType != 'ident' and secType != 'ident'):
+        if(firVal[0] == secVal[0]):
+            return ("true", "true") 
+        else:
+            return ("false", "nil")
+    else:
+        return ("false", "nil")
+
+
 #########################################less_than method###################################################
 def func_less_than(var_dict, tree_root):
     return ("true", "true")

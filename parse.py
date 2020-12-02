@@ -114,7 +114,7 @@ def parser(var_dict,token_list):
         return result
     #parsing EQUAL function  X와 Y가 같으면 참(true)을 반환
     elif(func=='equal'):
-        result=eqaul_chk(var_dict, parse_tree, token_list)
+        result=equal_chk(var_dict, parse_tree, token_list)
         return result
     #parsing < function X < Y 이면 참(true)을 반환
     elif(func=='<'):
@@ -434,11 +434,24 @@ def minusp(var_dict, parse_tree, token_list):
     return parse_tree 
 
 #parsing EQUAL function 
-def eqaul_chk(var_dict, parse_tree, token_list):
-    return parse_tree
+def equal_chk(var_dict, parse_tree, token_list):
+    if (len(token_list)==2): 
+        while(len(token_list)>0):
+            if(not expr(parse_tree, token_list)):return 'error'
+        return parse_tree
+    else:
+        print("equal function parameter out of range")
+        return "error" 
+
 
 #parsing < function
 def less_than(var_dict, parse_tree, token_list):
+# 변수 2개 이상 선언시 {'x': ('string', '"aa"'), 'y': ('string', '"af"')}
+# equal X Y  [('(', '('), ('setq', 'setq'), ('ident', 'y'), ('string', '"af"'), (')', ')')]
+# equal X 5
+# equal 5 Y 
+# equal X Y
+
     return parse_tree
 
 #parsing >= function 
@@ -447,7 +460,6 @@ def greater_equal(var_dict, parse_tree, token_list):
 
 #parsing STRINGP function
 def stringp(var_dict, parse_tree, token_list):
-    temp = token_list[0]
     factor(parse_tree, token_list)
     return parse_tree 
 
