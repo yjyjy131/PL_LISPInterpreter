@@ -1,5 +1,5 @@
 
-function=['+','/','*','-',"setq","list","cdr","car","nth","cons","reverse","append","length","member","assoc","remove","subst","atom","null","numberp","zerop","minusp","equal","stringp","if","cond","cadr"]
+function=['+','/','*','-',"setq","list","cdr","car","nth","cons","reverse","append","length","member","assoc","remove","subst","atom","null","numberp","zerop","minusp","equal","<","=","stringp","if","cond","cadr"]
 
 
 
@@ -22,6 +22,11 @@ def parser(var_dict,token_list):
     if(token_list.pop()[0]!=')'): print("there is not end bracket ");return 'error'
     funct=token_list.pop(0)
     func=funct[0]
+
+    if(func == '>'):
+        funct=token_list.pop(0)
+        func=funct[0]
+        
     parse_tree=TreeNode(funct)
     if(not func in function):
         print("there is no function")
@@ -114,14 +119,14 @@ def parser(var_dict,token_list):
         return result
     #parsing EQUAL function  X와 Y가 같으면 참(true)을 반환
     elif(func=='equal'):
-        result=eqaul_chk(var_dict, parse_tree, token_list)
+        result=equal_chk(var_dict, parse_tree, token_list)
         return result
     #parsing < function X < Y 이면 참(true)을 반환
     elif(func=='<'):
         result=less_than(var_dict, parse_tree, token_list)
         return result
     #parsing >= function  X >= Y 이면 참(true)을 반환
-    elif(func=='>='):
+    elif(func=='='):
         result=greater_equal(var_dict, parse_tree, token_list)
         return result
     #parsing STRINGP function X가 STRING일 때만 참(true)을 반환
@@ -386,43 +391,89 @@ def subst(var_dict,parse_tree,token_list):
 # parsing ATOM function
 def atom(var_dict, parse_tree, token_list):
     temp = token_list[0]
-    if(temp[0]!='ident'): print("error"); return 'error'
-    else:
-        factor(parse_tree,token_list)
+    if (temp[0] == 'ident' or temp[0] == 'variable'):
+        factor(parse_tree, token_list)
         return parse_tree
+    else:
+        print("error") 
+        return "error"
+
   
 #parsing NULL function 
 def null_chk(var_dict, parse_tree, token_list):
+    temp = token_list[0]
+    if (temp[0]!='ident'): 
+        print("error")
+        return "error"
+    else:
+        factor(parse_tree, token_list)
     return parse_tree
 
-#parsing NUMBERP function 
+#parsing NUMBERP function   
 def numberp(var_dict, parse_tree, token_list):
-    return parse_tree
+    if (len(token_list)==1): 
+        while(len(token_list)>0):
+            if(not expr(parse_tree, token_list)):return 'error'
+        return parse_tree
+    else:
+        print("numberp function parameter out of range")
+        return "error"
 
 #parsing ZEROP function 
 def zerop(var_dict, parse_tree, token_list):
-    return parse_tree
+    temp = token_list[0]
+    if (temp[0]!='ident' and temp[0]!='literal'): 
+        factor(parse_tree, token_list)
+        print("error")
+        return "error"
+    else:
+        factor(parse_tree, token_list)
+    return parse_tree 
 
 #parsing MINUSP function 
 def minusp(var_dict, parse_tree, token_list):
-    return parse_tree
+    temp = token_list[0]
+    if (temp[0]!='ident' and temp[0]!='literal'): 
+        print("error")
+        return "error"
+    else:
+        factor(parse_tree, token_list)
+    return parse_tree 
 
 #parsing EQUAL function 
-def eqaul_chk(var_dict, parse_tree, token_list):
-    return parse_tree
+def equal_chk(var_dict, parse_tree, token_list):
+    if (len(token_list)==2): 
+        while(len(token_list)>0):
+            if(not expr(parse_tree, token_list)):return 'error'
+        return parse_tree
+    else:
+        print("equal function parameter out of range")
+        return "error" 
 
 #parsing < function
 def less_than(var_dict, parse_tree, token_list):
-    return parse_tree
+    if (len(token_list)==2): 
+        while(len(token_list)>0):
+            if(not expr(parse_tree, token_list)):return 'error'
+        return parse_tree
+    else:
+        print("less than function parameter out of range")
+        return "error" 
 
 #parsing >= function 
 def greater_equal(var_dict, parse_tree, token_list):
-    return parse_tree
+    if (len(token_list)==2): 
+        while(len(token_list)>0):
+            if(not expr(parse_tree, token_list)):return 'error'
+        return parse_tree
+    else:
+        print("greater equal function parameter out of range")
+        return "error" 
 
-#parsing STRINGP function 
-def stringp(var_dict, parser_tree, token_list):
-    return stringp
-
+#parsing STRINGP function
+def stringp(var_dict, parse_tree, token_list):
+    factor(parse_tree, token_list)
+    return parse_tree 
 
 
 def expr(parse_tree,token_list):
