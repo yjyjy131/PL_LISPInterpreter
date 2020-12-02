@@ -445,9 +445,11 @@ def less_than(var_dict, parse_tree, token_list):
 def greater_equal(var_dict, parse_tree, token_list):
     return parse_tree
 
-#parsing STRINGP function 
-def stringp(var_dict, parser_tree, token_list):
-    return stringp
+#parsing STRINGP function
+def stringp(var_dict, parse_tree, token_list):
+    temp = token_list[0]
+    factor(parse_tree, token_list)
+    return parse_tree 
 
 
 def expr(parse_tree,token_list):
