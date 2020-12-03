@@ -7,9 +7,10 @@ import parse
 
 def eval(var_dict,tree_root,ident_calc=False):
 
-    if(type(tree_root)!=parse.TreeNode):return "Error"
-    #print(tree_root.postorder())
-    #print(tree_root.depth())
+    if(type(tree_root)!=parse.TreeNode):raise NotImplementedError
+#들어온 파스트리에서 루트 노드에 있는 토큰(함수)가 뭔지 확인 후에 이에 맞게 처리해주는 함수를 불러줌
+#각 처리해주는 함수들의 반환값은 모두 튜플이다. 5를 반환하는게 아니라 ('literal','5') 처럼 (토큰,lexeme)형태로 반환함 => 재귀적으로 호출하여 처리하기 위함
+# 이 값을 이후 post_eval이라는 함수에서 불러 실제로 인터프리터에서 출력해야되는 값을 eval이 반환한 튜플에서 빼내서 출력해준다(lexeme값)
 
     if tree_root.data[0] =='literal':
         result=function_literal(var_dict,tree_root)
@@ -40,12 +41,10 @@ def eval(var_dict,tree_root,ident_calc=False):
         result=function_ident(var_dict,tree_root,ident_calc)
         return result
 
-    # if it is parse_tree of arithmetic function
+
     elif tree_root.data[0] in ['/','*','+','-']:
         result = function_calculus(var_dict,tree_root)
         return result
-
-    # if it is parse_tree of SETQ function
 
     elif tree_root.data[0] == 'setq':
         result = function_setq(var_dict,tree_root)
@@ -162,50 +161,47 @@ def eval(var_dict,tree_root,ident_calc=False):
     elif tree_root.data[0] == 'print':
         result = func_print(var_dict, tree_root)
         return result
-    """
-    elif(tree_root.data[1]==다른함수):
-        다른 함수에 대한 eval 함#tn
-    """
+
 #################################TypeCheck method###################################
 def type_check(var_dict,target):
-
+# 들어온 인자가 어떤 token값을 가지는지 알려줌(변수가 온 경우 저장된 값의 token을 알려줌)
     if(target[0]=="ident"):
         if(target[1] in var_dict):
             return var_dict[target[1]][0]
         else:
-            print("Value Error : there is no "+"'"+target[1]+"'")
+            print("Value Error : unbounded value "+"'"+target[1]+"'")
             raise NotImplementedError
     else: return target[0]
-#################################TypeCheck method###################################
+
 
 
 ################################# literal method###################################
 def function_literal(var_dict,tree_root):
-    return tree_root.data
-################################# literal method###################################
+    return tree_root.data #파스트리에 숫자만 들어온 경우 해당 값을 반환해줌
+
 
 
 ################################# literal_list method###################################
 def function_literal_list(var_dict,tree_root):
-    return tree_root.data
-################################# literal_list method###################################
+    return tree_root.data #파스트리에 리스트만 들어온 경우 해당 값을 반환해줌
+
 
 
 ################################# string method###################################
 def function_string(var_dict,tree_root):
-    return tree_root.data
-################################# string method###################################
+    return tree_root.data #파스트리에 string만 들어온 경우 해당 값을 반환해줌
+
 
 ################################# true method###################################
 def function_true(var_dict,tree_root):
-    return tree_root.data
-################################# true method###################################
+    return tree_root.data #파스트리에 T만 들어온 경우 해당 값을 반환해줌
+
 
 
 ################################# false method###################################
 def function_false(var_dict,tree_root):
-    return tree_root.data
-################################# false method###################################
+    return tree_root.data #파스트리에 false만 들어온 경우 해당 값을 반환해줌
+
 
 
 
@@ -218,15 +214,15 @@ def function_ident(var_dict,tree_root,ident_calc):
             if(tree_root.data[1] in var_dict):
                 return var_dict[tree_root.data[1]]
             else:
-                print("Value Error : there is no "+"'"+tree_root.data[1]+"'")
+                print("Value Error : unbounded value "+"'"+tree_root.data[1]+"'")
                 raise NotImplementedError
+#파스트리에 변수만 들어온 경우 이미 저장된 값인지 확인하고 해당 값을 반환해줌
 
-################################# ident method###################################
 
 ################################# variable method###################################
 def function_variable(var_dict,tree_root):
     return ('variable',tree_root.data[1])
-################################# variable method###################################
+#파스트리에 'x형태가 들어온 경우 해당 값을 반환해준다.
 
 
 ################################# calculus method###################################
@@ -243,12 +239,16 @@ def float_or_int(string):
     else:
         return int(string)
 
+#사칙연산 처리 함수
 def function_calculus(var_dict,tree_root):
     result=eval(var_dict,tree_root.children[0],True)
+    #첫번째 인자의 값을 계산하고 그 값이 literal인지 확인
     if(type_check(var_dict,result)!="literal"):
         print(tree_root.data[1]+"Type Error")
         raise NotImplementedError
     result=float_or_int(result[1])
+
+    # 들어온 인자만큼 각 인자별로 literal인지 확인해주고 첫번째 인자에 계속 연산(+/*-)해줌
     if tree_root.data[0]=='+':
         for i in tree_root.children[1:]:
             check=eval(var_dict,i,True)
@@ -279,18 +279,22 @@ def function_calculus(var_dict,tree_root):
             result = result / float_or_int(check[1])
 
     return ('literal',str(result))
-############################################calculus method##############################################
+
 
 
 #########################################list method###################################################
+#들어온 토큰이 list인지 확인해줌
 def is_literal_list(treenode):
     if treenode.data[0]=='literal_list':
         return True
     else:
         return False
 
+#list연산 처리 함수
 def function_list(var_dict,tree_root):
     result = str()
+    #들어온 인자들을 다 리스트에 추가해줌
+    #내부에서 리스트는 문자열 형태로 저장됨
     for index, child in enumerate(tree_root.children):
         if index==0:
             result=eval(var_dict,child,True)[1]
@@ -299,17 +303,20 @@ def function_list(var_dict,tree_root):
             result = result + " "+eval(var_dict,child,True)[1]
 
     return ('literal_list','('+result+')')
-#########################################list method###################################################
+
 
 
 #########################################setq method###################################################
+#setq 처리 함수
 def function_setq(var_dict,tree_root):
     return_list=list()
+    #setq는 인자가 무조건 짝수개
     if len(tree_root.children)%2!=0:
         return "Error : setq parameter number is odd"
     for index, child in enumerate(tree_root.children):
         if (index%2)==0:
             variable=eval(var_dict,child,False)
+            #setq는 홀수번째 인자가 반드시 변수(ident)여야 함
             if variable[0]!='ident':
                 print("setq function even variable is not ident")
                 raise NotImplementedError
@@ -320,7 +327,7 @@ def function_setq(var_dict,tree_root):
             return_list.append(value)
     return return_list[len(return_list)-1]
 
-#########################################setq method###################################################
+
 
 
 #########################################car method###################################################
@@ -356,7 +363,8 @@ def literal_list_to_list(string_literal_list):
 
     return result
 
-#리스트내 원소가 어떤 token값을 가지는지 출력해줌
+#문자열로 저장된 리스트에서, 리스트 내 원소가 어떤 token값을 가지는지 출력해줌
+# 내부적으로 리스트는 문자열 형태로 저장됨
 def detect_token(string):
     first_char=string[0]
     if first_char=='"':
@@ -368,8 +376,10 @@ def detect_token(string):
     else:
         return 'literal'
 
+# CAR 처리 함수
 def function_car(var_dict,tree_root):
     literal_list=eval(var_dict,tree_root.children[0],True)
+    #CAR의 인자값에 대한 계산을 해준 후, 이 결과가 list인지 확인해줌
     if(type_check(var_dict,literal_list)!="literal_list"):
         print("CAR Type Error")
         raise NotImplementedError
@@ -378,26 +388,31 @@ def function_car(var_dict,tree_root):
     first_element=list_py[0]
     token=detect_token(first_element)
     return (token, first_element)
- # (car '()) << should fix error
 
-#########################################car method###################################################
+
 
 
 #########################################cdr method###################################################
+# CDR 처리 함수
 def function_cdr(var_dict,tree_root):
 
     literal_list=eval(var_dict,tree_root.children[0],True)
     if(type_check(var_dict,literal_list)!="literal_list"):
         print("CDR Type Error")
         raise NotImplementedError
+    #CAR의 인자값에 대한 계산을 해준 후, 이 결과가 list인지 확인해줌
+    # 인자로 받은 list를 파이썬 list로 만들어 연산을 해준 후,
+    # 이 새로운 list를 다시 문자열 형태로 변환해준후 이 값을 반환
     list_py = literal_list_to_list(literal_list[1])
     new_literal_list_py=list_py[1:]
     new_literal_list='('+" ".join(new_literal_list_py)+')'
     return ('literal_list',new_literal_list )
 
-#########################################cdr method###################################################
+
 
 #########################################nth method###################################################
+#NTH 처리 함수
+
 def function_nth(var_dict,tree_root):
 
     result1=eval(var_dict,tree_root.children[0],True)
@@ -406,60 +421,69 @@ def function_nth(var_dict,tree_root):
         raise NotImplementedError
 
     number=float_or_int(result1[1])
-    #print(number)
+    #첫번째 인자에 대한 계산후 이 값이 숫자인지 확인해준다.
     if(type(number)!=int or number<0):
-        print("NTH Type Error : First argument should be Natural Number")
+        print("NTH Type Error : First argument should be Zero or Natural Number")
         raise NotImplementedError
-
-    result2=eval(var_dict,tree_root.children[1],True) #애매
+    #첫번째 인자에 대한 계산후 이 값이 0이거나 자연수인지 확인해준다.
+    result2=eval(var_dict,tree_root.children[1],True)
     if(type_check(var_dict,result2)!="literal_list"):
         print("NTH Type Error : Second argument should be List")
         raise NotImplementedError
-
+    #두번째 인자에 대한 계산후 이 값이 list인지 확인해준다.
+    #list값(string 형태)를 python list로 만들어준후 length를 확인후 해당 순서의 값을 빼내준다.
     list_py = literal_list_to_list(result2[1])
-    #print(len(list_py))
+
 
     if(len(list_py)-1<number):return ("false","nil")
     else:return (detect_token(list_py[number]),list_py[number])
 
-#########################################nth method###################################################
 
 
-#########################################cons method#################################################
+
+#########################################cons method################################################
+#cons 처리 함수
 def function_cons(var_dict,tree_root):
     left_result=eval(var_dict,tree_root.children[0],True)
     right_result=eval(var_dict,tree_root.children[1],True)
     token = type_check(var_dict,right_result)
+    #두번째 인자가 list인지 확인해준다.
+
     if token!='literal_list':
         print("right parameter of function cons is not literal_list")
         raise NotImplementedError
-
+    #list값(string 형태)를 python list로 만들어준후 length를 확인후 첫번쨰 인자를 추가해준다.
     py_new_list = literal_list_to_list(right_result[1])
     py_new_list.insert(0,left_result[1])
+    # 이 새로운 list를 다시 문자열 형태로 변환해준후 이 값을 반환
     new_literal_list='('+" ".join(py_new_list)+')'
     return ('literal_list',new_literal_list)
-#########################################cons method#################################################
 
 
-#########################################reverse method#################################################
+
+#########################################reverse method################################################
+#reverse처리 함수
 def function_reverse(var_dict,tree_root):
     result=eval(var_dict,tree_root.children[0],True)
     token = type_check(var_dict,result)
-
+    #첫번째 인자가 list인지 확인해준다.
     if token!='literal_list':
         print("parameter of function reverse is not literal_list")
         raise NotImplementedError
-
+    #list값(string 형태)를 python list로 만들어준후 순서를 뒤집어 새로운 list를 만든다
     py_new_list = literal_list_to_list(result[1])
     py_new_list=py_new_list[::-1]
+    # 이 새로운 list를 다시 문자열 형태로 변환해준후 이 값을 반환
     new_literal_list='('+" ".join(py_new_list)+')'
     return ('literal_list',new_literal_list)
-#########################################reverse method#################################################
 
 
-#########################################append method#################################################
+
+#########################################append method################################################
+#append 처리 함수
 def function_append(var_dict,tree_root):
     list_element=list()
+    #각 인자가 list인지 확인해준다. list가 맞다면 이를 python list형태로 변환하여 종합하는 python list인 list_element에 추가해준다
     for child in tree_root.children:
         result=eval(var_dict,child,True)
         token = type_check(var_dict,result)
@@ -468,23 +492,25 @@ def function_append(var_dict,tree_root):
             raise NotImplementedError
         else:
             list_element.extend(literal_list_to_list(result[1]))
-
+    # list_element를 다시 문자열 형태로 변환해준후 이 값을 반환
     new_literal_list='('+" ".join(list_element)+')'
     return ('literal_list',new_literal_list)
-#########################################append method#################################################
 
 
-#########################################member method#################################################
+
+#########################################member method################################################
+#member 처리 함수
 def function_member(var_dict,tree_root):
     left_result=eval(var_dict,tree_root.children[0],True)
     right_result=eval(var_dict,tree_root.children[1],True)
+    #두번째 인자가 list인지 확인해준다.
     token = type_check(var_dict,right_result)
     if token!='literal_list':
         print("right parameter of function member is not literal_list")
         raise NotImplementedError
     target_element=left_result[1]
     py_new_list = literal_list_to_list(right_result[1])
-    #print(py_new_list)
+    #list값(string 형태)를 python list로 만들어준후 찾는 인자가 있는지 확인후 있으면 그 인자부터의 리스트를 다시 문자열로 변환하여 반환해준다.
     try:
         index=py_new_list.index(target_element)
         py_new_list=py_new_list[index:]
@@ -492,38 +518,41 @@ def function_member(var_dict,tree_root):
         return ('literal_list',new_literal_list)
     except:
         return ('false','nil')
-#########################################member method#################################################
 
 
-#########################################remove method#################################################
+
+#########################################remove method################################################
+#remove처리함수
 def function_remove(var_dict,tree_root):
     result=list()
     left_result=eval(var_dict,tree_root.children[0],True)
     right_result=eval(var_dict,tree_root.children[1],True)
+    #두번째 인자가 list인지 확인해준다.
     token = type_check(var_dict,right_result)
     if token!='literal_list':
         print("right parameter of function member is not literal_list")
         raise NotImplementedError
     target_element=left_result[1]
     py_new_list = literal_list_to_list(right_result[1])
-
+    #list값(string 형태)를 python list로 만들어준후 target_element가 있는지 확인하여 이 인자가 없는 새로운 리스트를 만든 후,다시 문자열로 변환하여 반환해준다.
     for i in py_new_list:
         if i!=target_element:
             result.append(i)
 
     new_literal_list='('+" ".join(result)+')'
     return ('literal_list',new_literal_list)
-#########################################remove method#################################################
 
-#########################################length method###################################################
+
+#########################################length method##################################################
+#length처리함수
 def function_length(var_dict,tree_root):
 
-
+    #들어온 인자가 list인지 확인해준다.
     result=eval(var_dict,tree_root.children[0],True)
     if(type_check(var_dict,result)!="literal_list"):
         print("LENGTH Type Error : argument should be List")
         raise NotImplementedError
-
+    #list값(string 형태)를 python list로 만들어준후 이 리스트의 길이를 구한 뒤 길이값을 반환해준다.
     list_py = literal_list_to_list(result[1])
 
     out=str(len(list_py))
@@ -531,13 +560,14 @@ def function_length(var_dict,tree_root):
 
     return ("literal",out)
 
-#########################################length method###################################################
 
-#########################################ASSOC method###################################################
+
+#########################################ASSOC method##################################################
+#assoc처리함수
 def function_assoc(var_dict,tree_root):
 
     result1=eval(var_dict,tree_root.children[0],True)
-
+    #두번째 인자가 list인지 확인해준다.
     result2=eval(var_dict,tree_root.children[1],True)
     if(type_check(var_dict,result2)!="literal_list"):
         print("ASSOC Type Error : Second argument should be List")
@@ -545,12 +575,12 @@ def function_assoc(var_dict,tree_root):
 
     list_py = literal_list_to_list(result2[1])
 
-    #print(list_py)
+    #list값(string 형태)를 python list로 만들어준후 내부인자가 모두 list인지 확인해준다.
     for i in list_py:
         if(detect_token(i)!="literal_list"):
             print("ASSOC Type Error : List's argument should be List")
             raise NotImplementedError
-
+    #찾는 list가 있는지 첫번쨰 인자를 통해 검사한다. 있으면 그 인자를 save변수에 저장하고,이를 나중에 반환한다.
     for i in list_py:
         temp=literal_list_to_list(i)
         if(result1==(detect_token(temp[0]),temp[0])):
@@ -561,20 +591,21 @@ def function_assoc(var_dict,tree_root):
     if(check):return ("literal_list",save)
     else:return ("false","nil")
 
-#########################################ASSOC method###################################################
 
-#########################################SUBST method###################################################
+
+#########################################SUBST method##################################################
+#subst 처리 함수
 def function_subst(var_dict,tree_root):
 
     result1=eval(var_dict,tree_root.children[0],True)
 
     result2=eval(var_dict,tree_root.children[1],True)
-
+    #세번째 인자가 list인지 확인해준다.
     result3=eval(var_dict,tree_root.children[2],True)
     if(type_check(var_dict,result3)!="literal_list"):
         print("SUBST Type Error : Third argument should be List")
         raise NotImplementedError
-
+    #list값(string 형태)를 python list로 만들어준후 두번쨰 인자가 있으면 첫번째 인자로 바꿔서 새로 저장해준다.
     list_py = literal_list_to_list(result3[1])
 
     str="("
@@ -593,7 +624,6 @@ def function_subst(var_dict,tree_root):
 
     return ("literal_list",str)
 
-#########################################ASSOC method###################################################
 
 
 
@@ -605,19 +635,19 @@ def func_atom (var_dict, tree_root):
     typeValue = tree_root.children[0].data[0]
 
     if(typeValue == 'variable' or typeValue == 'literal' or typeValue == 'string'):
-        return ("true", "true")
+        return ("true", "t")
 
     elif(typeValue == 'ident'):
         value = var_dict.get(tree_root.children[0].data[1])
         if value is not None:
             #print(value)
             if(value[0] == 'variable' or value[0] == 'literal' or value[0] == 'string'):
-                return ("true", "true")
+                return ("true", "t")
             else:
                 return ("false", "nil")
         else:
             print("Variable doesn't have value")
-            return ("error", "error")
+            raise NotImplementedError #return ("error", "error")
     else:
         return ("false", "nil")
 
@@ -628,39 +658,39 @@ def  func_null (var_dict, tree_root):
     value = var_dict.get(tree_root.children[0].data[1])
     if value is not None:
         if(value[1] == 'nil'):
-            return ("true", "true")
+            return ("true", "t")
         else:
             return ("false", "nil")
     else:
         print("Variable doesn't have value")
-        return ("error", "error")
+        raise NotImplementedError #return ("error", "error")
 
 #########################################numberp method###################################################
 def func_numberp(var_dict, tree_root):
     value = tree_root.children[0].data[0]
 
     if(value == 'literal'):
-        return ("true", "true")
+        return ("true", "t")
     else:
         value = var_dict.get(tree_root.children[0].data[1])
         if value is not None:
             if(value[0] == 'literal'):
-                return ("true", "true")
+                return ("true", "t")
             else:
                 return ("false", "nil")
         else:
             print("Variable doesn't have value")
-            return ("error", "error")
+            raise NotImplementedError #return ("error", "error")
 
 #########################################zerop method###################################################
 def func_zerop(var_dict, tree_root):
     typeValue = tree_root.children[0].data[0]
-    print(typeValue)
+    #print(typeValue)
     if(typeValue == 'literal'):
         value = tree_root.children[0].data[1]
-        print(value)
+        #print(value)
         if(value == '0'):
-            return ("true", "true")
+            return ("true", "t")
         else:
             return ("false", "nil")
 
@@ -669,17 +699,17 @@ def func_zerop(var_dict, tree_root):
         if identVal is not None:
             if (identVal[0] == 'literal'):
                 if(identVal[1] =='0'):
-                    return ("true", "true")
+                    return ("true", "t")
                 else:
                     return ("false", "nil")
             else:
-                return ("error", "error")
+                raise NotImplementedError #return ("error", "error")
         else:
             print("Variable doesn't have value")
-            return ("error", "error")
-    
+            raise NotImplementedError #return ("error", "error")
+
     else:
-        return ("error", "error")
+        raise NotImplementedError #return ("error", "error")
 #########################################minusp method###################################################
 def func_minusp(var_dict, tree_root):
     typeValue = tree_root.children[0].data[0]
@@ -687,7 +717,7 @@ def func_minusp(var_dict, tree_root):
     if(typeValue == 'literal'):
         value = int(tree_root.children[0].data[1])
         if(value < 0):
-            return ("true", "true")
+            return ("true", "t")
         else:
             return ("false", "nil")
 
@@ -696,16 +726,16 @@ def func_minusp(var_dict, tree_root):
         if identVal is not None:
             if (identVal[0] == 'literal'):
                 if(int(identVal[1]) < 0):
-                    return ("true", "true")
+                    return ("true", "t")
                 else:
                     return ("false", "nil")
             else:
-                return ("error", "error")
+                raise NotImplementedError #return ("error", "error")
         else:
             print("Variable doesn't have value")
-            return ("error", "error")
+            raise NotImplementedError #return ("error", "error")
     else:
-        return ("error", "error")
+        raise NotImplementedError #return ("error", "error")
 
 
 #########################################equal method###################################################
@@ -727,7 +757,7 @@ def func_eqaul(var_dict, tree_root):
     if(firType == 'ident'):
         if (var_dict.get(firVal)) is None:
             print("Variable doesn't have value")
-            return ("error", "error")
+            raise NotImplementedError #return ("error", "error")
         else:
             identChk = var_dict.get(firVal)
             if(identChk[0] == 'literal'):
@@ -738,7 +768,7 @@ def func_eqaul(var_dict, tree_root):
     if(secType == 'ident'):
         if(var_dict.get(secVal)) is None:
             print("Variable doesn't have value")
-            return ("error", "error")
+            raise NotImplementedError #return ("error", "error")
         else:
             identChk = var_dict.get(secVal)
             if(identChk[0] == 'literal'):
@@ -751,7 +781,7 @@ def func_eqaul(var_dict, tree_root):
         # 같은 타입 or 둘 다 ident
         if(firType == secType):
             if(firVal == secVal):
-                return ("true", "true")
+                return ("true", "t")
             else:
                 return ("false", "nil")
 
@@ -759,12 +789,12 @@ def func_eqaul(var_dict, tree_root):
         elif(firType != secType):
             if(firType == 'ident'):
                 if(firVal == secVal):
-                    return ("true", "true")
+                    return ("true", "t")
                 else:
                     return ("false", "nil")
             elif(secType == 'ident'):
                 if(firVal == secVal):
-                    return ("true", "true")
+                    return ("true", "t")
                 else:
                     return ("false", "nil")
             else:
@@ -792,7 +822,7 @@ def func_less_than(var_dict, tree_root):
     if(firType == 'ident'):
         if (var_dict.get(firVal)) is None:
             print("Variable doesn't have value")
-            return ("error", "error")
+            raise NotImplementedError #return ("error", "error")
         else:
             identChk = var_dict.get(firVal)
             if(identChk[0] == 'literal'):
@@ -803,7 +833,7 @@ def func_less_than(var_dict, tree_root):
     if(secType == 'ident'):
         if(var_dict.get(secVal)) is None:
             print("Variable doesn't have value")
-            return ("error", "error")
+            raise NotImplementedError #return ("error", "error")
         else:
             identChk = var_dict.get(secVal)
             if(identChk[0] == 'literal'):
@@ -816,7 +846,7 @@ def func_less_than(var_dict, tree_root):
         # 같은 타입 or 둘 다 ident
         if(firType == secType):
             if(firVal < secVal):
-                return ("true", "true")
+                return ("true", "t")
             else:
                 return ("false", "nil")
 
@@ -824,12 +854,12 @@ def func_less_than(var_dict, tree_root):
         elif(firType != secType):
             if(firType == 'ident'):
                 if(firVal < secVal):
-                    return ("true", "true")
+                    return ("true", "t")
                 else:
                     return ("false", "nil")
             elif(secType == 'ident'):
                 if(firVal < secVal):
-                    return ("true", "true")
+                    return ("true", "t")
                 else:
                     return ("false", "nil")
             else:
@@ -856,7 +886,7 @@ def func_greater_than(var_dict, tree_root):
     if(firType == 'ident'):
         if (var_dict.get(firVal)) is None:
             print("Variable doesn't have value")
-            return ("error", "error")
+            raise NotImplementedError #return ("error", "error")
         else:
             identChk = var_dict.get(firVal)
             if(identChk[0] == 'literal'):
@@ -867,7 +897,7 @@ def func_greater_than(var_dict, tree_root):
     if(secType == 'ident'):
         if(var_dict.get(secVal)) is None:
             print("Variable doesn't have value")
-            return ("error", "error")
+            raise NotImplementedError #return ("error", "error")
         else:
             identChk = var_dict.get(secVal)
             if(identChk[0] == 'literal'):
@@ -880,7 +910,7 @@ def func_greater_than(var_dict, tree_root):
         # 같은 타입 or 둘 다 ident
         if(firType == secType):
             if(firVal > secVal):
-                return ("true", "true")
+                return ("true", "t")
             else:
                 return ("false", "nil")
 
@@ -888,12 +918,12 @@ def func_greater_than(var_dict, tree_root):
         elif(firType != secType):
             if(firType == 'ident'):
                 if(firVal > secVal):
-                    return ("true", "true")
+                    return ("true", "t")
                 else:
                     return ("false", "nil")
             elif(secType == 'ident'):
                 if(firVal > secVal):
-                    return ("true", "true")
+                    return ("true", "t")
                 else:
                     return ("false", "nil")
             else:
@@ -922,7 +952,7 @@ def func_greater_equal(var_dict, tree_root):
     if(firType == 'ident'):
         if (var_dict.get(firVal)) is None:
             print("Variable doesn't have value")
-            return ("error", "error")
+            raise NotImplementedError #return ("error", "error")
         else:
             identChk = var_dict.get(firVal)
             if(identChk[0] == 'literal'):
@@ -933,7 +963,7 @@ def func_greater_equal(var_dict, tree_root):
     if(secType == 'ident'):
         if(var_dict.get(secVal)) is None:
             print("Variable doesn't have value")
-            return ("error", "error")
+            raise NotImplementedError #return ("error", "error")
         else:
             identChk = var_dict.get(secVal)
             if(identChk[0] == 'literal'):
@@ -946,7 +976,7 @@ def func_greater_equal(var_dict, tree_root):
         # 같은 타입 or 둘 다 ident
         if(firType == secType):
             if(firVal >= secVal):
-                return ("true", "true")
+                return ("true", "t")
             else:
                 return ("false", "nil")
 
@@ -954,12 +984,12 @@ def func_greater_equal(var_dict, tree_root):
         elif(firType != secType):
             if(firType == 'ident'):
                 if(firVal >= secVal):
-                    return ("true", "true")
+                    return ("true", "t")
                 else:
                     return ("false", "nil")
             elif(secType == 'ident'):
                 if(firVal >= secVal):
-                    return ("true", "true")
+                    return ("true", "t")
                 else:
                     return ("false", "nil")
             else:
@@ -986,7 +1016,7 @@ def func_less_equal(var_dict, tree_root):
     if(firType == 'ident'):
         if (var_dict.get(firVal)) is None:
             print("Variable doesn't have value")
-            return ("error", "error")
+            raise NotImplementedError #return ("error", "error")
         else:
             identChk = var_dict.get(firVal)
             if(identChk[0] == 'literal'):
@@ -997,7 +1027,7 @@ def func_less_equal(var_dict, tree_root):
     if(secType == 'ident'):
         if(var_dict.get(secVal)) is None:
             print("Variable doesn't have value")
-            return ("error", "error")
+            raise NotImplementedError #return ("error", "error")
         else:
             identChk = var_dict.get(secVal)
             if(identChk[0] == 'literal'):
@@ -1010,7 +1040,7 @@ def func_less_equal(var_dict, tree_root):
         # 같은 타입 or 둘 다 ident
         if(firType == secType):
             if(firVal <= secVal):
-                return ("true", "true")
+                return ("true", "t")
             else:
                 return ("false", "nil")
 
@@ -1018,12 +1048,12 @@ def func_less_equal(var_dict, tree_root):
         elif(firType != secType):
             if(firType == 'ident'):
                 if(firVal <= secVal):
-                    return ("true", "true")
+                    return ("true", "t")
                 else:
                     return ("false", "nil")
             elif(secType == 'ident'):
                 if(firVal <= secVal):
-                    return ("true", "true")
+                    return ("true", "t")
                 else:
                     return ("false", "nil")
             else:
@@ -1036,24 +1066,25 @@ def func_stringp(var_dict, tree_root):
     typeValue = tree_root.children[0].data[0]
     value = tree_root.children[0].data[1]
     if(typeValue =='string'):
-        return ("true", "true")
+        return ("true", "t")
     elif(typeValue == 'ident'):
         identVal = var_dict.get(tree_root.children[0].data[1])
         if identVal is not None:
             #print(identVal)
             if(identVal[0] == 'string'):
-                return ("true", "true")
+                return ("true", "t")
             else:
                 return ("false", "nil")
         else:
             print("Variable doesn't have value")
-            return ("error", "error")
+            raise NotImplementedError #return ("error", "error")
     else:
         return ("false", "nil")
 
 #########################################COND method###################################################
 def function_cond(var_dict,tree_root):
-
+#cond는 조건문 수행문 쌍으로 들어오므로 인자가 반드시 짝수
+#각 조건문이 false가 아니면 바로 수행문을 실행시키고 나간다. 모든 조건문이 false면 nil을 반환한다.
     if len(tree_root.children)%2!=0:
         return "Error : COND parameter number should be even"
     check=False
@@ -1069,11 +1100,11 @@ def function_cond(var_dict,tree_root):
 
     return ("false","nil")
 
-#########################################COND method###################################################
+
 
 #########################################IF method###################################################
 def function_if(var_dict,tree_root):
-
+#첫번째 인자값이 false면 세번째 인자나 nil을 반환해주고 아니면 두번쨰 인자를 반환해준다.
     result1=eval(var_dict,tree_root.children[0],True)
 
     if(type_check(var_dict,result1)=="false"):
@@ -1087,20 +1118,20 @@ def function_if(var_dict,tree_root):
         result2=eval(var_dict,tree_root.children[1],True)
         return result2
 
-#########################################IF method###################################################
+
 
 
 ########################################print method###################################################
 def function_print(var_dict,tree_root):
-
+# 인자값을 계산한후 해당 값을 반환해준다.
     result1=eval(var_dict,tree_root.children[0],True)
 
     return result1
 
-#########################################PRINT method###################################################
 
 
 
+#eval이 반환한 튜플값에서 lexeme을 읽어서 출력해준다.
 def post_eval(tree_root, result):
     print(result[1])
     return None
@@ -1108,6 +1139,7 @@ def post_eval(tree_root, result):
 
 
 #인터프리터 반환값 출력용
+# main함수에서 사용하기 위함. eval을 통해서 파싱트리의 값을 계산하여 튜플형태로 반환. 이 튜플형태로부터 post_eval이 실제 반환값을 print해준다.
 def sementic_analysis(var_dict, tree_root):
     result = eval(var_dict, tree_root, ident_calc=False)
     post_eval(tree_root, result)

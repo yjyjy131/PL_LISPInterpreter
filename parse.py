@@ -11,7 +11,7 @@ function=['+','/','*','-',"setq","list","cdr","car","nth","cons","reverse","appe
 
 
 def parser(var_dict,token_list):
-    #print(token_list)
+    
     if((';',';') in token_list):
         index=token_list.index((';',';'))
         token_list=token_list[:index]
@@ -34,10 +34,10 @@ def parser(var_dict,token_list):
 
     if(token_list.pop(0)[0]!='('):
         print("there is not first bracket ")
-        raise NotImplementedError #(1 2 3)입력했을때 에러가 안뜸 떠야함..
+        raise NotImplementedError
     if(token_list.pop()[0]!=')'):
         print("there is not end bracket ")
-        raise NotImplementedError # 입력받을때 괄호 안맞으면 에러 낼거니까 나중에 여기 에러 잡는건 없애도 됨.괄호 pop만 해도됨
+        raise NotImplementedError
     if(len(token_list)==0):
         print("there is no readable code")
         raise NotImplementedError
@@ -51,7 +51,7 @@ def parser(var_dict,token_list):
                 token_list.pop(0)
                 func= '>='
                 funct = ('>=', '>=')
-    
+
     # <= 부호 처리
     if(func == '<'):
             if(token_list[0] == ('=', '=')):
@@ -189,11 +189,7 @@ def parser(var_dict,token_list):
     elif(func=='print'):
         result=print_stmt(var_dict,parse_tree,token_list)
         return result
-    """
-    elif(func==다른함수):
-        다른 함수에 대한 parse 함수
-        return 함수 결과
-    """
+
 
 
 # <arithmetic_stmt> -> ( (+|-|*|/) <expr> {<expr>})
@@ -570,9 +566,7 @@ def print_stmt(var_dict,parse_tree,token_list):
     return parse_tree
 
 
-# <expr> -> <factor>  | (<stmt>)
-# <stmt> -> (<function> <expr> {<expr>})  # 'parser' function work for this
-# <function> -> + | - | * | / | setq | list | car | cdr | nth | cons | reverse | append | length | assoc | remove | subst | member | ...
+
 
 # parsing ATOM function
 def atom(var_dict, parse_tree, token_list):
@@ -675,7 +669,7 @@ def less_equal(var_dict, parse_tree, token_list):
         return parse_tree
     else:
         print("<= : error")
-        return "error"        
+        return "error"
 
 #parsing STRINGP function
 def stringp(var_dict, parse_tree, token_list):
@@ -687,6 +681,10 @@ def printFunc(var_dict, parse_tree, token_list):
     factor(parse_tree, token_list)
     return parse_tree
 
+
+# <expr> -> <factor>  | (<stmt>)
+# <stmt> -> (<function> <expr> {<expr>})  # 'parser' function work for this
+# <function> -> + | - | * | / | setq | list | car | cdr | nth | cons | reverse | append | length | assoc | remove | subst | member | ...
 
 def expr(parse_tree,token_list):
     if(len(token_list)==0):
@@ -729,60 +727,7 @@ def factor(parse_tree,token_list):
 
     return True
 
-def is_exist_list(var_dict,parse_tree):
-    if(parse_tree.data[0]=='ident'):
-        if(parse_tree.data[1] in var_dict):
-            if(var_dict[i.data[1]][0]!="literal_list"):#나중에 var_list로 수정
-                return False
-    elif(parse_tree.data[0]=="variable" or parse_tree.data[0]=="string" or parse_tree.data[0]=="literal"):
-        return False
-    elif(parse_tree.data[1]=="+" or parse_tree.data[1]=="-" or parse_tree.data[1]=="*" or parse_tree.data[1]=="/"):
-        return False
-    elif(parse_tree.data[1]=="car" or parse_tree.data[1]=="nth" or parse_tree.data[1]=="length" or parse_tree.data[1]=="remove"):
-        return False
-    elif(parse_tree.data[1]=="setq"):
-        if(not is_exist_list_all(var_dict,parse_tree.children[1])):return False
-    elif(parse_tree.data[1]=="member"):pass #NIL반환하는 경우를 찾아서 처리해줘야함
-    elif(parse_tree.data[1]=="nth"):pass #list를 반환하지 않는 경우를 찾아줘야1
 
-    return True
-
-def is_numeric(var_dict,parse_tree):
-    if(parse_tree.data[0]=='ident'):
-        if(parse_tree.data[1] in var_dict):
-            if(var_dict[parse_tree.data[1]][0]!="literal" ):
-                return False
-    elif(parse_tree.data[0]=="variable" or parse_tree.data[0]=="string" or parse_tree.data[0]=="literal_list"):
-        return False
-    elif(parse_tree.data[1]=="list" or parse_tree.data[1]=="cdr" or parse_tree.data[1]=="cons" or parse_tree.data[1]=="reverse"or parse_tree.data[1]=="subst"):
-        return False
-    elif(parse_tree.data[1]=="append" or  parse_tree.data[1]=="member" or parse_tree.data[1]=="remove"or parse_tree.data[1]=="assoc"):
-        return False
-    elif(parse_tree.data[1]=="setq"):
-        if(not is_numeric(var_dict,parse_tree.children[1])):return False
-    elif(parse_tree.data[1]=="car"):pass #숫자를 반환하지 않는 경우를 찾아서 처리해줘야함
-    elif(parse_tree.data[1]=="nth"):pass #숫자를 반환하지 않는 경우를 찾아줘야1
-
-    return True
-
-def is_numeric_all(var_dict,parse_tree):
-    for i in parse_tree.children:
-        if(i.data[0]=='ident'):
-            if(i.data[1] in var_dict):
-                if(var_dict[parse_tree.data[1]][0]!="literal" ):
-                    return False
-        elif(i.data[0]=="variable" or i.data[0]=="string" or i.data[0]=="literal_list"):
-            return False
-        elif(i.data[1]=="list" or i.data[1]=="cdr" or i.data[1]=="cons" or i.data[1]=="reverse"or i.data[1]=="subst"):
-            return False
-        elif(i.data[1]=="append" or  i.data[1]=="member" or i.data[1]=="remove"or i.data[1]=="assoc"):
-            return False
-        elif(i.data[1]=="setq"):
-            if(not is_numeric_all(var_dict,i.children[1])):return False
-        elif(i.data[1]=="car"):pass #숫자를 반환하지 않는 경우를 찾아서 처리해줘야함
-        elif(i.data[1]=="nth"):pass #숫자를 반환하지 않는 경우를 찾아줘야1
-
-    return True
 
 #for making parse_tree
 class TreeNode(object):
