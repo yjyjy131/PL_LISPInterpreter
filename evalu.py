@@ -611,13 +611,13 @@ def func_atom (var_dict, tree_root):
         value = var_dict.get(tree_root.children[0].data[1])
         if value is not None:
             print(value)
-            if(value[0] == 'ident' or value[0] == 'variable' or value[0] == 'literal' or value[0] == 'string'):
+            if(value[0] == 'variable' or value[0] == 'literal' or value[0] == 'string'):
                 return ("true", "true")
             else:
                 return ("false", "nil")
         else:
             print("Variable doesn't have value")
-            return ("false", "nil")
+            return ("error", "error")
     else:
         return ("false", "nil")
 
@@ -633,7 +633,7 @@ def  func_null (var_dict, tree_root):
             return ("false", "nil")
     else:
         print("Variable doesn't have value")
-        return ("false", "nil")
+        return ("error", "error")
 
 #########################################numberp method###################################################
 def func_numberp(var_dict, tree_root):
@@ -650,7 +650,7 @@ def func_numberp(var_dict, tree_root):
                 return ("false", "nil")
         else:
             print("Variable doesn't have value")
-            return ("false", "nil")
+            return ("error", "error")
 
 #########################################zerop method###################################################
 def func_zerop(var_dict, tree_root):
@@ -1042,7 +1042,7 @@ def func_stringp(var_dict, tree_root):
                 return ("false", "nil")
         else:
             print("Variable doesn't have value")
-            return ("false", "nil")
+            return ("error", "error")
     else:
         return ("false", "nil")
 
