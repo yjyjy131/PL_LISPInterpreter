@@ -150,6 +150,10 @@ def eval(var_dict,tree_root,ident_calc=False):
     elif tree_root.data[0] == '>=':
         result = func_greater_equal(var_dict, tree_root)
         return result
+    
+    elif tree_root.data[0] == '<=':
+        result = func_less_equal(var_dict, tree_root)
+        return result
 
     elif tree_root.data[0] == 'stringp':
             result = func_stringp(var_dict, tree_root)
@@ -594,19 +598,25 @@ def function_subst(var_dict,tree_root):
 
 
 #########################################atom method###################################################
+# literal, string, variable
+# ident ( ident , literal, string, variable )
+
 def func_atom (var_dict, tree_root):
     typeValue = tree_root.children[0].data[0]
-
-    if(typeValue == 'variable'):
+ 
+    if(typeValue == 'variable' or typeValue == 'literal' or typeValue == 'string'):
         return ("true", "true")
+
     elif(typeValue == 'ident'):
         value = var_dict.get(tree_root.children[0].data[1])
         if value is not None:
-            if(value[0] == 'ident'):
+            print(value)
+            if(value[0] == 'ident' or value[0] == 'variable' or value[0] == 'literal' or value[0] == 'string'):
                 return ("true", "true")
             else:
                 return ("false", "nil")
         else:
+            print("Variable doesn't have value")
             return ("false", "nil")
     else:
         return ("false", "nil")
@@ -616,10 +626,13 @@ def func_atom (var_dict, tree_root):
 #########################################null method###################################################
 def  func_null (var_dict, tree_root):
     value = var_dict.get(tree_root.children[0].data[1])
-
-    if(value[1] == 'nil'):
-        return ("true", "true")
+    if value is not None:
+        if(value[1] == 'nil'):
+            return ("true", "true")
+        else:
+            return ("false", "nil")
     else:
+        print("Variable doesn't have value")
         return ("false", "nil")
 
 #########################################numberp method###################################################
@@ -630,9 +643,13 @@ def func_numberp(var_dict, tree_root):
         return ("true", "true")
     else:
         value = var_dict.get(tree_root.children[0].data[1])
-        if(value[0] == 'literal'):
-            return ("true", "true")
+        if value is not None:
+            if(value[0] == 'literal'):
+                return ("true", "true")
+            else:
+                return ("false", "nil")
         else:
+            print("Variable doesn't have value")
             return ("false", "nil")
 
 #########################################zerop method###################################################
@@ -945,11 +962,74 @@ def func_greater_equal(var_dict, tree_root):
     else:
         print("Function >= not supported between different type")
 
+#########################################less_equal method###################################################
+def func_less_equal(var_dict, tree_root):
+    firType = tree_root.children[0].data[0]
+    secType = tree_root.children[1].data[0]
+
+    firVal = tree_root.children[0].data[1]
+    secVal = tree_root.children[1].data[1]
+
+    # literal str to int
+    if(firType == 'literal'):
+        firVal = int(firVal)
+
+    if(secType == 'literal'):
+        secVal = int(secVal)
+
+    # ident 인 경우 null 체크
+    if(firType == 'ident'):
+        if (var_dict.get(firVal)) is None:
+            print("Variable doesn't have value")
+            return ("error", "error")
+        else:
+            identChk = var_dict.get(firVal)
+            if(identChk[0] == 'literal'):
+                firVal = int(identChk[1])
+            else:
+                firVal = identChk[1]
+
+    if(secType == 'ident'):
+        if(var_dict.get(secVal)) is None:
+            print("Variable doesn't have value")
+            return ("error", "error")
+        else:
+            identChk = var_dict.get(secVal)
+            if(identChk[0] == 'literal'):
+                secVal = int(identChk[1])
+            else:
+                secVal = identChk[1]
+
+    # 비교할 값의 타입들이 같은지 체크
+    if( type(firVal) == type(secVal)):
+        # 같은 타입 or 둘 다 ident
+        if(firType == secType):
+            if(firVal <= secVal):
+                return ("true", "true")
+            else:
+                return ("false", "nil")
+
+        # 하나만 ident
+        elif(firType != secType):
+            if(firType == 'ident'):
+                if(firVal <= secVal):
+                    return ("true", "true")
+                else:
+                    return ("false", "nil")
+            elif(secType == 'ident'):
+                if(firVal <= secVal):
+                    return ("true", "true")
+                else:
+                    return ("false", "nil")
+            else:
+                return ("false", "nil")
+    else:
+        print("Function <= not supported between different type")
+
 #########################################strigp method###################################################
 def func_stringp(var_dict, tree_root):
     typeValue = tree_root.children[0].data[0]
     value = tree_root.children[0].data[1]
-    print(value)
     if(typeValue =='string'):
         return ("true", "true")
     elif(typeValue == 'ident'):
@@ -962,6 +1042,7 @@ def func_stringp(var_dict, tree_root):
                 return ("false", "nil")
         else:
             print("Variable doesn't have value")
+            return ("false", "nil")
     else:
         return ("false", "nil")
 
