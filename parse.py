@@ -32,7 +32,7 @@ def parser(var_dict,token_list):
         print("there is not first bracket ")
         raise NotImplementedError #(1 2 3)입력했을때 에러가 안뜸 떠야함..
     if(token_list.pop()[0]!=')'):
-        print("there is not end bracket ");
+        print("there is not end bracket ")
         raise NotImplementedError # 입력받을때 괄호 안맞으면 에러 낼거니까 나중에 여기 에러 잡는건 없애도 됨.괄호 pop만 해도됨
     if(len(token_list)==0):
         print("there is no readable code")
@@ -43,9 +43,12 @@ def parser(var_dict,token_list):
 
     # >= 부호 처리 
     if(func == '>'):
-        funct=token_list.pop(0)
-        func=funct[0]
+            if(token_list[0] == ('=', '=')):
+                token_list.pop(0)
+                func= '>='
+                funct = ('>=', '>=')
         
+
     parse_tree=TreeNode(funct)
     if(not func in function):
         print("there is no function")
@@ -158,6 +161,18 @@ def parser(var_dict,token_list):
     #parsing STRINGP function X가 STRING일 때만 참(true)을 반환
     elif(func=='stringp'):
         result=stringp(var_dict, parse_tree, token_list)
+        return result
+        # parsing COND function
+    elif(func=='cond'):
+        result=cond(var_dict,parse_tree,token_list)
+        return result
+    # parsing IF function
+    elif(func=='if'):
+        result=if_stmt(var_dict,parse_tree,token_list)
+        return result
+    # parsing Print function
+    elif(func=='print'):
+        result=print_stmt(var_dict,parse_tree,token_list)
         return result
     """
     elif(func==다른함수):
@@ -609,6 +624,16 @@ def equal_chk(var_dict, parse_tree, token_list):
 
 #parsing < function
 def less_than(var_dict, parse_tree, token_list):
+    if (len(token_list)==2):
+        while(len(token_list)>0):
+            if(not expr(parse_tree, token_list)):return 'error'
+        return parse_tree
+    else:
+        print("less than function parameter out of range")
+        return "error"
+
+#parsing > function
+def greater(var_dict, parse_tree, token_list):
     if (len(token_list)==2):
         while(len(token_list)>0):
             if(not expr(parse_tree, token_list)):return 'error'

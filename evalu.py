@@ -968,3 +968,61 @@ def func_stringp(var_dict, tree_root):
 #########################################COND method###################################################
 def function_cond(var_dict,tree_root):
 
+    if len(tree_root.children)%2!=0:
+        return "Error : COND parameter number should be even"
+    check=False
+    for index, child in enumerate(tree_root.children):
+        if (index%2)==0:
+            result1=eval(var_dict,child,True)
+            if(type_check(var_dict,result1)!="false"):
+                check=True
+        elif (index%2)!=0:
+            result2=eval(var_dict,child,True)
+            if(check):
+                return result2
+
+    return ("false","nil")
+
+#########################################COND method###################################################
+
+#########################################IF method###################################################
+def function_if(var_dict,tree_root):
+
+    result1=eval(var_dict,tree_root.children[0],True)
+
+    if(type_check(var_dict,result1)=="false"):
+        if(len(tree_root.children)==3):
+            result3=eval(var_dict,tree_root.children[2],True)
+            return result3
+        else:
+            return ("false","nil")
+
+    else:
+        result2=eval(var_dict,tree_root.children[1],True)
+        return result2
+
+#########################################IF method###################################################
+
+
+########################################print method###################################################
+def function_print(var_dict,tree_root):
+
+    result1=eval(var_dict,tree_root.children[0],True)
+
+    return result1
+
+#########################################PRINT method###################################################
+
+
+
+def post_eval(tree_root, result):
+    print(result[1])
+    return None
+
+
+
+#인터프리터 반환값 출력용
+def sementic_analysis(var_dict, tree_root):
+    result = eval(var_dict, tree_root, ident_calc=False)
+    post_eval(tree_root, result)
+    return None
