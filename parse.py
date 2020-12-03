@@ -609,24 +609,23 @@ def numberp(var_dict, parse_tree, token_list):
 
 #parsing ZEROP function
 def zerop(var_dict, parse_tree, token_list):
-    temp = token_list[0]
-    if (temp[0]!='ident' and temp[0]!='literal'):
-        factor(parse_tree, token_list)
+    if (len(token_list)==1):
+        while(len(token_list)>0):
+            if(not expr(parse_tree, token_list)):return 'error'
+        return parse_tree
+    else:
         print("ZEROP : error")
         return "error"
-    else:
-        factor(parse_tree, token_list)
-    return parse_tree
 
 #parsing MINUSP function
 def minusp(var_dict, parse_tree, token_list):
-    temp = token_list[0]
-    if (temp[0]!='ident' and temp[0]!='literal'):
+    if (len(token_list)==1):
+        while(len(token_list)>0):
+            if(not expr(parse_tree, token_list)):return 'error'
+        return parse_tree
+    else:
         print("MINUSP : error")
         return "error"
-    else:
-        factor(parse_tree, token_list)
-    return parse_tree
 
 #parsing EQUAL function
 def equal_chk(var_dict, parse_tree, token_list):
