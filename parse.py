@@ -26,8 +26,12 @@ def parser(var_dict,token_list):
             else:
                 print("Value Error : there is no "+"'"+token_list[0][1]+"'")
                 raise NotImplementedError
+        elif(token_list[0][0]=="string" or token_list[0][0]=="literal" or token_list[0][0]=="literal_list" or token_list[0][0]=="true" or token_list[0][0]=="false" or token_list[0][0]=="variable"):
+            return TreeNode(token_list.pop(0)) #factor가 바로 들어오는 경우 처리
+        else:
+            print("there is no readable syntax")
+            raise NotImplementedError
 
-        return TreeNode(token_list.pop(0)) #factor가 바로 들어오는 경우 처리
     if(token_list.pop(0)[0]!='('):
         print("there is not first bracket ")
         raise NotImplementedError #(1 2 3)입력했을때 에러가 안뜸 떠야함..
@@ -41,13 +45,13 @@ def parser(var_dict,token_list):
     funct=token_list.pop(0)
     func=funct[0]
 
-    # >= 부호 처리 
+    # >= 부호 처리
     if(func == '>'):
             if(token_list[0] == ('=', '=')):
                 token_list.pop(0)
                 func= '>='
                 funct = ('>=', '>=')
-        
+
 
     parse_tree=TreeNode(funct)
     if(not func in function):
@@ -642,7 +646,7 @@ def greater(var_dict, parse_tree, token_list):
         print("less than function parameter out of range")
         return "error"
 
-#parsing >= function 
+#parsing >= function
 def greater_equal(var_dict, parse_tree, token_list):
     if (len(token_list)==2):
         while(len(token_list)>0):

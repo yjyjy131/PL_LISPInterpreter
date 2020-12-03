@@ -137,7 +137,7 @@ def eval(var_dict,tree_root,ident_calc=False):
 
     elif tree_root.data[0] == '=':
         result = func_eqaul(var_dict, tree_root)
-        return result    
+        return result
 
     elif tree_root.data[0] == '<':
         result = func_less_than(var_dict, tree_root)
@@ -697,7 +697,7 @@ def func_eqaul(var_dict, tree_root):
     # literal str to int
     if(firType == 'literal'):
         firVal = int(firVal)
-    
+
     if(secType == 'literal'):
         secVal = int(secVal)
 
@@ -711,7 +711,7 @@ def func_eqaul(var_dict, tree_root):
             if(identChk[0] == 'literal'):
                 firVal = int(identChk[1])
             else:
-                firVal = identChk[1]  
+                firVal = identChk[1]
 
     if(secType == 'ident'):
         if(var_dict.get(secVal)) is None:
@@ -723,10 +723,10 @@ def func_eqaul(var_dict, tree_root):
                 secVal = int(identChk[1])
             else:
                 secVal = identChk[1]
-            
+
     # 비교할 값의 타입들이 같은지 체크
     if( type(firVal) == type(secVal)):
-        # 같은 타입 or 둘 다 ident 
+        # 같은 타입 or 둘 다 ident
         if(firType == secType):
             if(firVal == secVal):
                 return ("true", "true")
@@ -737,12 +737,12 @@ def func_eqaul(var_dict, tree_root):
         elif(firType != secType):
             if(firType == 'ident'):
                 if(firVal == secVal):
-                    return ("true", "true") 
+                    return ("true", "true")
                 else:
-                    return ("false", "nil")        
+                    return ("false", "nil")
             elif(secType == 'ident'):
                 if(firVal == secVal):
-                    return ("true", "true") 
+                    return ("true", "true")
                 else:
                     return ("false", "nil")
             else:
@@ -826,7 +826,7 @@ def func_greater_than(var_dict, tree_root):
     # literal str to int
     if(firType == 'literal'):
         firVal = int(firVal)
-    
+
     if(secType == 'literal'):
         secVal = int(secVal)
 
@@ -840,7 +840,7 @@ def func_greater_than(var_dict, tree_root):
             if(identChk[0] == 'literal'):
                 firVal = int(identChk[1])
             else:
-                firVal = identChk[1]  
+                firVal = identChk[1]
 
     if(secType == 'ident'):
         if(var_dict.get(secVal)) is None:
@@ -852,13 +852,13 @@ def func_greater_than(var_dict, tree_root):
                 secVal = int(identChk[1])
             else:
                 secVal = identChk[1]
-            
+
     # 비교할 값의 타입들이 같은지 체크
     if( type(firVal) == type(secVal)):
-        # 같은 타입 or 둘 다 ident 
+        # 같은 타입 or 둘 다 ident
         if(firType == secType):
             if(firVal > secVal):
-                return ("true", "true") 
+                return ("true", "true")
             else:
                 return ("false", "nil")
 
@@ -866,12 +866,12 @@ def func_greater_than(var_dict, tree_root):
         elif(firType != secType):
             if(firType == 'ident'):
                 if(firVal > secVal):
-                    return ("true", "true") 
+                    return ("true", "true")
                 else:
-                    return ("false", "nil")        
+                    return ("false", "nil")
             elif(secType == 'ident'):
                 if(firVal > secVal):
-                    return ("true", "true") 
+                    return ("true", "true")
                 else:
                     return ("false", "nil")
             else:
