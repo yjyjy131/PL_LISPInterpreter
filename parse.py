@@ -1,5 +1,5 @@
 
-function=['+','/','*','-',"setq","list","cdr","car","nth","cons","reverse","append","length","member","assoc","remove","subst","atom","null","numberp","zerop","minusp","equal","<","=","stringp","if","cond","cadr"]
+function=['+','/','*','-',"setq","list","cdr","car","nth","cons","reverse","append","length","member","assoc","remove","subst","atom","null","numberp","zerop","minusp","equal","<","=",">=",">","stringp","if","cond","cadr", "print"]
 
 
 
@@ -23,9 +23,12 @@ def parser(var_dict,token_list):
     funct=token_list.pop(0)
     func=funct[0]
 
+    # >= 부호 처리 
     if(func == '>'):
-        funct=token_list.pop(0)
-        func=funct[0]
+        if(token_list[0] == ('=', '=')):
+            token_list.pop(0)
+            func= '>='
+            funct = ('>=', '>=')
         
     parse_tree=TreeNode(funct)
     if(not func in function):
@@ -121,25 +124,34 @@ def parser(var_dict,token_list):
     elif(func=='equal'):
         result=equal_chk(var_dict, parse_tree, token_list)
         return result
+    elif(func=='='):
+        result=equal_chk(var_dict, parse_tree, token_list)
+        return result
     #parsing < function X < Y 이면 참(true)을 반환
     elif(func=='<'):
         result=less_than(var_dict, parse_tree, token_list)
         return result
+    #parsing < function X > Y 이면 참(true)을 반환
+    elif (func=='>'):
+        result=greater(var_dict, parse_tree, token_list)
+        return result
     #parsing >= function  X >= Y 이면 참(true)을 반환
-    elif(func=='='):
+    elif(func=='>='):
         result=greater_equal(var_dict, parse_tree, token_list)
         return result
     #parsing STRINGP function X가 STRING일 때만 참(true)을 반환
     elif(func=='stringp'):
         result=stringp(var_dict, parse_tree, token_list)
         return result
+    #parsnig print function
+    elif(func=='print'):
+        result=printFunc(var_dict, parse_tree, token_list)
+        return result
     """
     elif(func==다른함수):
         다른 함수에 대한 parse 함수
         return 함수 결과
     """
-
-
 
 
 # <arithmetic_stmt> -> ( (+|-|*|/) <expr> {<expr>})
@@ -151,7 +163,6 @@ def calc(var_dict,parse_tree,token_list):
         return 'error'
 
     return parse_tree
-
 
 
 # <setq_stmt> -> ( setq <ident> <expr> ... )
@@ -170,9 +181,6 @@ def set_q(parse_tree,token_list):
         return 'error'
 
     return parse_tree
-
-
-
 
 
 # <list_stmt> -> ( list <expr> {<expr>})
@@ -249,9 +257,6 @@ def cadr(var_dict,parse_tree,token_list,func):
     return parse_tree
 
 
-
-
-
 # <nth_stmt> -> ( nth <expr> <expr> )
 def nth(var_dict,parse_tree,token_list):
     if(len(token_list)==0):
@@ -311,7 +316,6 @@ def make_append(var_dict,parse_tree,token_list):
 
     return parse_tree
 
-
 # <length_stmt> -> ( length <expr> ) ;
 def length(var_dict,parse_tree,token_list):
     if(len(token_list)==0):
@@ -324,7 +328,6 @@ def length(var_dict,parse_tree,token_list):
         return 'error'
 
     return parse_tree
-
 
 # <member_stmt> -> ( member <expr> <expr> )
 def member(var_dict,parse_tree,token_list):
@@ -460,6 +463,16 @@ def less_than(var_dict, parse_tree, token_list):
         print("less than function parameter out of range")
         return "error" 
 
+#parsing > frunction
+def greater (var_dict, parse_tree, token_list):
+    if (len(token_list)==2): 
+        while(len(token_list)>0):
+            if(not expr(parse_tree, token_list)):return 'error'
+        return parse_tree
+    else:
+        print("less than function parameter out of range")
+        return "error" 
+
 #parsing >= function 
 def greater_equal(var_dict, parse_tree, token_list):
     if (len(token_list)==2): 
@@ -474,6 +487,11 @@ def greater_equal(var_dict, parse_tree, token_list):
 def stringp(var_dict, parse_tree, token_list):
     factor(parse_tree, token_list)
     return parse_tree 
+
+#parsing PRINT function
+def printFunc(var_dict, parse_tree, token_list):
+    factor(parse_tree, token_list)
+    return parse_tree
 
 
 def expr(parse_tree,token_list):

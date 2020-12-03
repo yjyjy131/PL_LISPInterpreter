@@ -55,6 +55,7 @@ def symbol(lex):
     elif(cmpstr=="minusp"):return "minusp"
     elif(cmpstr=="equal"):return "equal"
     elif(cmpstr=="stringp"):return "stringp"
+    elif(cmpstr=="print"):return "print"
     elif(cmpstr=="if"):return "if"
     elif(cmpstr=="cond"):return "cond"
     elif(fun_cadr.match(cmpstr)!=None):return "cadr" # 조합을 'c[ad]+r'이라는 정규표현식으로 나타냄
