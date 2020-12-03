@@ -11,7 +11,7 @@ import evalu
 print("LISP Interpreter")
 var_dict={}
 
-"""
+
 while(1):
     buffer=input('>')
     try:
@@ -20,8 +20,8 @@ while(1):
         print(var_dict)
     except NotImplementedError:
         pass
-        """
 
+"""
 while(1):
     buffer=input('>')
     while(1):
@@ -45,3 +45,4 @@ while(1):
             except NotImplementedError:
                 pass
             break
+"""
