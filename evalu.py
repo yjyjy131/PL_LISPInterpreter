@@ -655,9 +655,10 @@ def func_numberp(var_dict, tree_root):
 #########################################zerop method###################################################
 def func_zerop(var_dict, tree_root):
     typeValue = tree_root.children[0].data[0]
-
+    print(typeValue)
     if(typeValue == 'literal'):
         value = tree_root.children[0].data[1]
+        print(value)
         if(value == '0'):
             return ("true", "true")
         else:
@@ -672,10 +673,13 @@ def func_zerop(var_dict, tree_root):
                 else:
                     return ("false", "nil")
             else:
-                return ("false", "nil")
+                return ("error", "error")
         else:
-            return ("false", "nil")
-
+            print("Variable doesn't have value")
+            return ("error", "error")
+    
+    else:
+        return ("error", "error")
 #########################################minusp method###################################################
 def func_minusp(var_dict, tree_root):
     typeValue = tree_root.children[0].data[0]
@@ -696,11 +700,12 @@ def func_minusp(var_dict, tree_root):
                 else:
                     return ("false", "nil")
             else:
-                return ("false", "nil")
+                return ("error", "error")
         else:
-            return ("false", "nil")
+            print("Variable doesn't have value")
+            return ("error", "error")
     else:
-        return ("false", "nil")
+        return ("error", "error")
 
 
 #########################################equal method###################################################
