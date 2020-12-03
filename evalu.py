@@ -150,7 +150,7 @@ def eval(var_dict,tree_root,ident_calc=False):
     elif tree_root.data[0] == '>=':
         result = func_greater_equal(var_dict, tree_root)
         return result
-    
+
     elif tree_root.data[0] == '<=':
         result = func_less_equal(var_dict, tree_root)
         return result
@@ -225,7 +225,7 @@ def function_ident(var_dict,tree_root,ident_calc):
 
 ################################# variable method###################################
 def function_variable(var_dict,tree_root):
-    return ('ident',tree_root.data[1])
+    return ('variable',tree_root.data[1])
 ################################# variable method###################################
 
 
@@ -603,14 +603,14 @@ def function_subst(var_dict,tree_root):
 
 def func_atom (var_dict, tree_root):
     typeValue = tree_root.children[0].data[0]
- 
+
     if(typeValue == 'variable' or typeValue == 'literal' or typeValue == 'string'):
         return ("true", "true")
 
     elif(typeValue == 'ident'):
         value = var_dict.get(tree_root.children[0].data[1])
         if value is not None:
-            print(value)
+            #print(value)
             if(value[0] == 'variable' or value[0] == 'literal' or value[0] == 'string'):
                 return ("true", "true")
             else:
@@ -1035,7 +1035,7 @@ def func_stringp(var_dict, tree_root):
     elif(typeValue == 'ident'):
         identVal = var_dict.get(tree_root.children[0].data[1])
         if identVal is not None:
-            print(identVal)
+            #print(identVal)
             if(identVal[0] == 'string'):
                 return ("true", "true")
             else:
