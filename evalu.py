@@ -672,33 +672,44 @@ def func_atom (var_dict, tree_root):
 
 #########################################null method###################################################
 def  func_null (var_dict, tree_root):
-    value = var_dict.get(tree_root.children[0].data[1])
-    if value is not None:
-        if(value[1] == 'nil'):
-            return ("true", "t")
-        else:
-            return ("false", "nil")
-    else:
-        print("Variable doesn't have value")
-        raise NotImplementedError #return ("error", "error")
-
-#########################################numberp method###################################################
-def func_numberp(var_dict, tree_root):
-    value = tree_root.children[0].data[0]
-
-    if(value == 'literal'):
-        return ("true", "t")
-    else:
+    typeValue = tree_root.children[0].data[0]
+    if(typeValue=='ident'):
         value = var_dict.get(tree_root.children[0].data[1])
         if value is not None:
-            if(value[0] == 'literal'):
+            if(value[1] == 'nil'):
                 return ("true", "t")
             else:
                 return ("false", "nil")
         else:
             print("Variable doesn't have value")
             raise NotImplementedError #return ("error", "error")
+    elif(typeValue=='false'):
+        return ("true", "t")
+    else:
+        return ("false", "nil")
 
+#########################################numberp method###################################################
+def func_numberp(var_dict, tree_root):
+    typeValue = tree_root.children[0].data[0]
+    if(typeValue=='ident'):
+        value = tree_root.children[0].data[0]
+
+        if(value == 'literal'):
+            return ("true", "t")
+        else:
+            value = var_dict.get(tree_root.children[0].data[1])
+            if value is not None:
+                if(value[0] == 'literal'):
+                    return ("true", "t")
+                else:
+                    return ("false", "nil")
+            else:
+                print("Variable doesn't have value")
+                raise NotImplementedError #return ("error", "error")
+    elif(typeValue=='literal'):
+        return ("true", "t")
+    else:
+        return ("false", "nil")
 #########################################zerop method###################################################
 def func_zerop(var_dict, tree_root):
     typeValue = tree_root.children[0].data[0]
