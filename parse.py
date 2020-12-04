@@ -11,13 +11,15 @@ function=['+','/','*','-',"setq","list","cdr","car","nth","cons","reverse","appe
 
 
 def parser(var_dict,token_list):
-    
+    # 주석 처리
     if((';',';') in token_list):
         index=token_list.index((';',';'))
         token_list=token_list[:index]
+    # 주석 처리후 읽을 수 있는 코드가 있는지 확인
     if(len(token_list)==0):
         print("there is no readable code")
-        return
+        raise NotImplementedError
+    # 들어온 코드가 괄호로 감싸져있는지 확인, 이게 아닌 경우 단일 값(리스트,변수,문자열 등)이 들어온 경우라 판단
     if(token_list[0][0]!="(" or token_list[-1][0]!=")"):
         #print(len(token_list))
         if(token_list[0][0]=="ident"):
@@ -32,6 +34,7 @@ def parser(var_dict,token_list):
             print("there is no readable syntax")
             raise NotImplementedError
 
+    # 들어온 코드의 가장 양끝 괄호를 빼내고나서 읽을 수 있는 코드가 있는지 확인
     if(token_list.pop(0)[0]!='('):
         print("there is not first bracket ")
         raise NotImplementedError
@@ -42,6 +45,7 @@ def parser(var_dict,token_list):
         print("there is no readable code")
         raise NotImplementedError
 
+    # 들어온 코드가 어떤 연산을 해야되는지 확인(전위표기이므로 첫번째값을 확인하면 됨)
     funct=token_list.pop(0)
     func=funct[0]
 
@@ -59,11 +63,13 @@ def parser(var_dict,token_list):
                 func= '<='
                 funct = ('<=', '<=')
 
-
+    # 연산자 토큰을 루트로 하는 파스트리 생성
     parse_tree=TreeNode(funct)
     if(not func in function):
         print("there is no function")
         raise NotImplementedError
+
+    #연산자에 맞게 파스트리를 이어서 만들어주는 함수를 호출함(호출후 반환된 값은 최종 파스트리)
 
     # parsing arithmetic function
     if(func=='+'or func=='/' or func=='*'or func=='-'):
@@ -686,6 +692,12 @@ def printFunc(var_dict, parse_tree, token_list):
 # <stmt> -> (<function> <expr> {<expr>})  # 'parser' function work for this
 # <function> -> + | - | * | / | setq | list | car | cdr | nth | cons | reverse | append | length | assoc | remove | subst | member | ...
 
+# 주어진 ebnf에 의하면 <expr>은 피연산자라고 볼 수 있다. 피연산자에는 연산자를 가진 새로운 문장이 올 수 있고 atom(숫자,문자열,'변수)이나 리스트, 변수가 올 수도 있음.
+# 따라서 expr함수는 받은 토큰 리스트에 대하여 인자(문장 혹은 atom,변수,리스트)를 빼냄. 이때 문장을 빼낸 경우 다시 연산자 처리를 해줘야하므로 parser함수를 재귀적으로 부름 (결과로 생성된 새로운 파스트리를 기존 파스트리의 자식으로 추가해줌)
+# 문장이 아닌 atom,변수,리스트인 경우 factor 함수를 부름.(그 결과 해당 토큰을 파스트리의 자식으로 추가해준다)
+# 따라서 모든 연산자는 ebnf로 나타낸 다음, 해당 ebnf 문법에 맞게 expr혹은 factor함수를 부르면 파스트리를 만들 수 있다.
+# 예를들어 CAR연산은 ebnf로 ( car <expr> ) 나타낼 수 있으니 주어진 연산자가 'car'인걸 확인한 뒤 이를 루트로 하는 파스트리를 해주고(이걸 parser함수에서 해준다) 이후 parser함수에서 car함수를 불러준다.
+# car함수에서 인자(피연산자)를 처리해주는 expr함수를 한 번만 호출해주면 이에 대한 파스트리가 최종적으로 생성된다. 다른 함수들도 ebnf에 따라 적절히 expr과 factor를 불러주면 된다.
 def expr(parse_tree,token_list):
     if(len(token_list)==0):
         print("there is no argument")
@@ -730,6 +742,8 @@ def factor(parse_tree,token_list):
 
 
 #for making parse_tree
+# 파스트리를 구성하기 위한 트리노드 클래스이다. add메소드를 통해 자식노드를 추가할 수 있다.
+# 파스트리의 자식들은 children이라는 리스트 자료형으로 저장된다. (첫번째 자식은 children[0],두번째 자식은 children[1] ...)
 class TreeNode(object):
     def __init__(self,data, children=[]):
         self.data=data
