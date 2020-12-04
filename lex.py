@@ -189,7 +189,7 @@ def lex():
         nextToken=lookup(nextChar)
         addChar()
         getChar()
-    #print("Next token is: "+nextToken+", Next lexeme is "+lexeme)
+    # 최종반환값은 (토큰,lexeme)형태의 튜플이며, 각 입력값은 이런 튜플의 리스트로 변환된다.(이후 parser함수로 전달)
     token_list.append((nextToken,lexeme))
 
 def addChar():

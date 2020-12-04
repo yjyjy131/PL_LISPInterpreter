@@ -69,7 +69,7 @@ def parser(var_dict,token_list):
         print("there is no function")
         raise NotImplementedError
 
-    #연산자에 맞게 파스트리를 이어서 만들어주는 함수를 호출함(호출후 반환된 값은 최종 파스트리)
+    #연산자에 맞게 파스트리를 이어서 만들어주는 함수를 호출함(호출후 반환된 값은 최종 파스트리, 이후 semantic analysis 함수로 전달)
 
     # parsing arithmetic function
     if(func=='+'or func=='/' or func=='*'or func=='-'):
@@ -196,6 +196,56 @@ def parser(var_dict,token_list):
         result=print_stmt(var_dict,parse_tree,token_list)
         return result
 
+# <stmt> -> (<function> <expr> {<expr>})  # 'parser' function work for this
+# <function> -> + | - | * | / | setq | list | car | cdr | nth | cons | reverse | append | length | assoc | remove | subst | member | ...
+# <expr> -> <factor>  | (<stmt>)
+
+# 주어진 ebnf에 의하면 <expr>은 피연산자라고 볼 수 있다. 피연산자에는 연산자를 가진 새로운 문장이 올 수 있고 atom(숫자,문자열,'변수)이나 리스트, 변수가 올 수도 있음.
+# 따라서 expr함수는 받은 토큰 리스트에 대하여 인자(문장 혹은 atom,변수,리스트)를 빼냄. 이때 문장을 빼낸 경우 다시 연산자 처리를 해줘야하므로 parser함수를 재귀적으로 부름 (결과로 생성된 새로운 파스트리를 기존 파스트리의 자식으로 추가해줌)
+# 문장이 아닌 atom,변수,리스트인 경우 factor 함수를 부름.(그 결과 해당 토큰을 파스트리의 자식으로 추가해준다)
+# 따라서 모든 연산자는 ebnf로 나타낸 다음, 해당 ebnf 문법에 맞게 expr혹은 factor함수를 부르면 파스트리를 만들 수 있다.
+# 예를들어 CAR연산은 ebnf로 ( car <expr> ) 나타낼 수 있으니 주어진 연산자가 'car'인걸 확인한 뒤 이를 루트로 하는 파스트리를 해주고(이걸 parser함수에서 해준다) 이후 parser함수에서 car함수를 불러준다.
+# car함수에서 인자(피연산자)를 처리해주는 expr함수를 한 번만 호출해주면 이에 대한 파스트리가 최종적으로 생성된다. 다른 함수들도 ebnf에 따라 적절히 expr과 factor를 불러주면 된다.
+def expr(parse_tree,token_list):
+    if(len(token_list)==0):
+        print("there is no argument")
+        return False
+    if(token_list[0][0]=='('):
+        new_token=[]
+        stack=[]
+        end=0
+        for i in token_list:
+            if(i==('(','(')):
+                stack.append(i)
+                new_token.append(i)
+                end=end+1
+            elif(i==(')', ')')):
+                if(len(stack)==1):
+                    end=end+1
+                    stack.pop()
+                    new_token.append(i)
+                    break
+                else:
+                    end=end+1
+                    new_token.append(i)
+                    stack.pop()
+            else:
+                end=end+1
+                new_token.append(i)
+        del token_list[:end]
+        result=parser(parse_tree,new_token)
+        if(type(result)!=TreeNode):return False
+        else:parse_tree.add([result])
+    else:
+        factor(parse_tree,token_list)
+
+    return True
+
+# <factor> -> <literal>| <variable> | <string> | <literal_list> | <ident> | <bool>
+def factor(parse_tree,token_list):
+    parse_tree.add([TreeNode(token_list.pop(0))])
+
+    return True
 
 
 # <arithmetic_stmt> -> ( (+|-|*|/) <expr> {<expr>})
@@ -687,57 +737,6 @@ def printFunc(var_dict, parse_tree, token_list):
     factor(parse_tree, token_list)
     return parse_tree
 
-
-# <expr> -> <factor>  | (<stmt>)
-# <stmt> -> (<function> <expr> {<expr>})  # 'parser' function work for this
-# <function> -> + | - | * | / | setq | list | car | cdr | nth | cons | reverse | append | length | assoc | remove | subst | member | ...
-
-# 주어진 ebnf에 의하면 <expr>은 피연산자라고 볼 수 있다. 피연산자에는 연산자를 가진 새로운 문장이 올 수 있고 atom(숫자,문자열,'변수)이나 리스트, 변수가 올 수도 있음.
-# 따라서 expr함수는 받은 토큰 리스트에 대하여 인자(문장 혹은 atom,변수,리스트)를 빼냄. 이때 문장을 빼낸 경우 다시 연산자 처리를 해줘야하므로 parser함수를 재귀적으로 부름 (결과로 생성된 새로운 파스트리를 기존 파스트리의 자식으로 추가해줌)
-# 문장이 아닌 atom,변수,리스트인 경우 factor 함수를 부름.(그 결과 해당 토큰을 파스트리의 자식으로 추가해준다)
-# 따라서 모든 연산자는 ebnf로 나타낸 다음, 해당 ebnf 문법에 맞게 expr혹은 factor함수를 부르면 파스트리를 만들 수 있다.
-# 예를들어 CAR연산은 ebnf로 ( car <expr> ) 나타낼 수 있으니 주어진 연산자가 'car'인걸 확인한 뒤 이를 루트로 하는 파스트리를 해주고(이걸 parser함수에서 해준다) 이후 parser함수에서 car함수를 불러준다.
-# car함수에서 인자(피연산자)를 처리해주는 expr함수를 한 번만 호출해주면 이에 대한 파스트리가 최종적으로 생성된다. 다른 함수들도 ebnf에 따라 적절히 expr과 factor를 불러주면 된다.
-def expr(parse_tree,token_list):
-    if(len(token_list)==0):
-        print("there is no argument")
-        return False
-    if(token_list[0][0]=='('):
-        new_token=[]
-        stack=[]
-        end=0
-        for i in token_list:
-            if(i==('(','(')):
-                stack.append(i)
-                new_token.append(i)
-                end=end+1
-            elif(i==(')', ')')):
-                if(len(stack)==1):
-                    end=end+1
-                    stack.pop()
-                    new_token.append(i)
-                    break
-                else:
-                    end=end+1
-                    new_token.append(i)
-                    stack.pop()
-            else:
-                end=end+1
-                new_token.append(i)
-        del token_list[:end]
-        result=parser(parse_tree,new_token)
-        if(type(result)!=TreeNode):return False
-        else:parse_tree.add([result])
-    else:
-        factor(parse_tree,token_list)
-
-    return True
-
-# <factor> -> <literal>| <variable> | <string> | <literal_list> | <ident> | <bool>
-def factor(parse_tree,token_list):
-    parse_tree.add([TreeNode(token_list.pop(0))])
-
-    return True
 
 
 

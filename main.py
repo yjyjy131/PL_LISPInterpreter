@@ -31,17 +31,15 @@ while(1):
                 stack.append(i)
             elif(i==")"):
                 stack.pop()
-        if(len(stack)!=0):
+        if(len(stack)!=0): # 괄호검사후 짝이 안맞으면 다시 입력값을 받는다
             print("Not match pair of '()'")
             break
         else:
-            try:
-                #result=evalu.eval(var_dict,parse.parser(var_dict,lex.lexer(buffer)))
+            try: # 괄호검사후 짝이 맞으면 코드를 처리해준다.
                 lex_result=lex.lexer(buffer)
                 parse_result=parse.parser(var_dict,lex_result)
                 evalu.sementic_analysis(var_dict,parse_result)
-                #print(result)
-                #print(var_dict)
+
             except NotImplementedError:
                 pass
             break

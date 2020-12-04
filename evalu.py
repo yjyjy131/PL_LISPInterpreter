@@ -5,6 +5,22 @@ import parse
     #this function will traverse parse_tree by child to root order and sequentially get value.
 
 
+
+#eval이 반환한 튜플값에서 lexeme을 읽어서 출력해준다.
+def post_eval(tree_root, result):
+    print(result[1])
+    return None
+
+
+
+#인터프리터 반환값 출력용
+# main함수에서 사용하기 위함. eval을 통해서 파싱트리의 값을 계산하여 튜플형태로 반환. 이 튜플형태로부터 post_eval이 실제 반환값(lexeme)을 print해준다.
+def sementic_analysis(var_dict, tree_root):
+    result = eval(var_dict, tree_root, ident_calc=False)
+    post_eval(tree_root, result)
+    return None
+
+
 def eval(var_dict,tree_root,ident_calc=False):
 
     if(type(tree_root)!=parse.TreeNode):raise NotImplementedError
@@ -244,7 +260,7 @@ def function_calculus(var_dict,tree_root):
     result=eval(var_dict,tree_root.children[0],True)
     #첫번째 인자의 값을 계산하고 그 값이 literal인지 확인
     if(type_check(var_dict,result)!="literal"):
-        print(tree_root.data[1]+"Type Error")
+        print(tree_root.data[1]+"Type Error : argument should be literal")
         raise NotImplementedError
     result=float_or_int(result[1])
 
@@ -253,28 +269,28 @@ def function_calculus(var_dict,tree_root):
         for i in tree_root.children[1:]:
             check=eval(var_dict,i,True)
             if(type_check(var_dict,check)!="literal"):
-                print("+ Type Error")
+                print("+ Type Error : argument should be literal")
                 raise NotImplementedError
             result = result + float_or_int(check[1])
     if tree_root.data[0]=='-':
         for i in tree_root.children[1:]:
             check=eval(var_dict,i,True)
             if(type_check(var_dict,check)!="literal"):
-                print("- Type Error")
+                print("- Type Error : argument should be literal")
                 raise NotImplementedError
             result = result - float_or_int(check[1])
     if tree_root.data[0]=='*':
         for i in tree_root.children[1:]:
             check=eval(var_dict,i,True)
             if(type_check(var_dict,check)!="literal"):
-                print("* Type Error")
+                print("* Type Error : argument should be literal")
                 raise NotImplementedError
             result = result * float_or_int(check[1])
     if tree_root.data[0]=='/':
         for i in tree_root.children[1:]:
             check=eval(var_dict,i,True)
             if(type_check(var_dict,check)!="literal"):
-                print("/ Type Error")
+                print("/ Type Error : argument should be literal")
                 raise NotImplementedError
             result = result / float_or_int(check[1])
 
@@ -381,7 +397,7 @@ def function_car(var_dict,tree_root):
     literal_list=eval(var_dict,tree_root.children[0],True)
     #CAR의 인자값에 대한 계산을 해준 후, 이 결과가 list인지 확인해줌
     if(type_check(var_dict,literal_list)!="literal_list"):
-        print("CAR Type Error")
+        print("CAR Type Error : argument should be list")
         raise NotImplementedError
     list_py = literal_list_to_list(literal_list[1])
     if(len(list_py)==0):return ("false", "nil")
@@ -398,7 +414,7 @@ def function_cdr(var_dict,tree_root):
 
     literal_list=eval(var_dict,tree_root.children[0],True)
     if(type_check(var_dict,literal_list)!="literal_list"):
-        print("CDR Type Error")
+        print("CDR Type Error : argument should be list")
         raise NotImplementedError
     #CAR의 인자값에 대한 계산을 해준 후, 이 결과가 list인지 확인해줌
     # 인자로 받은 list를 파이썬 list로 만들어 연산을 해준 후,
@@ -417,7 +433,7 @@ def function_nth(var_dict,tree_root):
 
     result1=eval(var_dict,tree_root.children[0],True)
     if(type_check(var_dict,result1)!="literal"):
-        print("NTH Type Error : First argument should be Natural Number")
+        print("NTH Type Error : First argument should be Zero or Natural Number")
         raise NotImplementedError
 
     number=float_or_int(result1[1])
@@ -450,7 +466,7 @@ def function_cons(var_dict,tree_root):
     #두번째 인자가 list인지 확인해준다.
 
     if token!='literal_list':
-        print("right parameter of function cons is not literal_list")
+        print("CONS TYPE Error : second argument should be list")
         raise NotImplementedError
     #list값(string 형태)를 python list로 만들어준후 length를 확인후 첫번쨰 인자를 추가해준다.
     py_new_list = literal_list_to_list(right_result[1])
@@ -468,7 +484,7 @@ def function_reverse(var_dict,tree_root):
     token = type_check(var_dict,result)
     #첫번째 인자가 list인지 확인해준다.
     if token!='literal_list':
-        print("parameter of function reverse is not literal_list")
+        print("REVERSE Type Error : argument should be list")
         raise NotImplementedError
     #list값(string 형태)를 python list로 만들어준후 순서를 뒤집어 새로운 list를 만든다
     py_new_list = literal_list_to_list(result[1])
@@ -488,7 +504,7 @@ def function_append(var_dict,tree_root):
         result=eval(var_dict,child,True)
         token = type_check(var_dict,result)
         if token!='literal_list':
-            print("parameter of function append is not literal_list")
+            print("APPEND Type Error : all argument should be list")
             raise NotImplementedError
         else:
             list_element.extend(literal_list_to_list(result[1]))
@@ -506,7 +522,7 @@ def function_member(var_dict,tree_root):
     #두번째 인자가 list인지 확인해준다.
     token = type_check(var_dict,right_result)
     if token!='literal_list':
-        print("right parameter of function member is not literal_list")
+        print("MEMBER Type Error : second argument should be list")
         raise NotImplementedError
     target_element=left_result[1]
     py_new_list = literal_list_to_list(right_result[1])
@@ -530,7 +546,7 @@ def function_remove(var_dict,tree_root):
     #두번째 인자가 list인지 확인해준다.
     token = type_check(var_dict,right_result)
     if token!='literal_list':
-        print("right parameter of function member is not literal_list")
+        print("REMOVE Type Error : second argument should be list")
         raise NotImplementedError
     target_element=left_result[1]
     py_new_list = literal_list_to_list(right_result[1])
@@ -1127,20 +1143,3 @@ def function_print(var_dict,tree_root):
     result1=eval(var_dict,tree_root.children[0],True)
 
     return result1
-
-
-
-
-#eval이 반환한 튜플값에서 lexeme을 읽어서 출력해준다.
-def post_eval(tree_root, result):
-    print(result[1])
-    return None
-
-
-
-#인터프리터 반환값 출력용
-# main함수에서 사용하기 위함. eval을 통해서 파싱트리의 값을 계산하여 튜플형태로 반환. 이 튜플형태로부터 post_eval이 실제 반환값을 print해준다.
-def sementic_analysis(var_dict, tree_root):
-    result = eval(var_dict, tree_root, ident_calc=False)
-    post_eval(tree_root, result)
-    return None
