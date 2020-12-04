@@ -334,7 +334,7 @@ def cdr(var_dict,parse_tree,token_list):
 def cadr(var_dict,parse_tree,token_list,func):
 
     if(len(token_list)==0):
-        print("C[AD]+R : there is no argument")
+        print("CA+D+R : there is no argument")
         raise NotImplementedError
 
 
@@ -348,7 +348,10 @@ def cadr(var_dict,parse_tree,token_list,func):
         print("C[AD]+R : please match format to (c[ad]+r <expr>)")
         raise NotImplementedError
 
-
+    if(len(token_list)!=0):
+        print("CA+D+R : cannot match argument")
+        print("please match format to (ca+d+r <expr>)")
+        raise NotImplementedError
 
 
     while(len(func)!=0):

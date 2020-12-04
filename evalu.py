@@ -388,7 +388,7 @@ def detect_token(string):
     elif first_char=='(':
         return 'literal_list'
     elif first_char.isalpha():
-        return 'ident'
+        return 'variable'
     else:
         return 'literal'
 
@@ -597,6 +597,7 @@ def function_assoc(var_dict,tree_root):
             print("ASSOC Type Error : List's argument should be List")
             raise NotImplementedError
     #찾는 list가 있는지 첫번쨰 인자를 통해 검사한다. 있으면 그 인자를 save변수에 저장하고,이를 나중에 반환한다.
+    check=False
     for i in list_py:
         temp=literal_list_to_list(i)
         if(result1==(detect_token(temp[0]),temp[0])):
@@ -719,12 +720,14 @@ def func_zerop(var_dict, tree_root):
                 else:
                     return ("false", "nil")
             else:
+                print("Zerop : Error(not number)")
                 raise NotImplementedError #return ("error", "error")
         else:
             print("Variable doesn't have value")
             raise NotImplementedError #return ("error", "error")
 
     else:
+        print("Zerop : Error(not number)")
         raise NotImplementedError #return ("error", "error")
 #########################################minusp method###################################################
 def func_minusp(var_dict, tree_root):
@@ -746,11 +749,13 @@ def func_minusp(var_dict, tree_root):
                 else:
                     return ("false", "nil")
             else:
+                print("Minusp : Error(not number)")
                 raise NotImplementedError #return ("error", "error")
         else:
             print("Variable doesn't have value")
             raise NotImplementedError #return ("error", "error")
     else:
+        print("Minusp : Error(not number)")
         raise NotImplementedError #return ("error", "error")
 
 
