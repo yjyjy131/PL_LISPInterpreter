@@ -66,10 +66,10 @@ def symbol(lex):
     else:return "ident"
 
 def lookup(ch):
-    if ch in ['(', ')', '+', '-', '*', '/', ';', '=', '<', '>', '#', "'",'"']:
+    if ch in ['(', ')', '+', '-', '*', '/', '\\',';', '=', '<', '>', '#', "'",'"']:
         return ch
     else:
-        print(ch+"is not readable syntax")
+        print(ch+" is not readable syntax")
         raise NotImplementedError
 def getChar():
     global nextChar
