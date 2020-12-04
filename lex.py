@@ -9,12 +9,12 @@ buffersize=0
 lexLen=0
 nextChar=str()
 token_list=[]
-fun_cadr=re.compile('c[ad]+r')
+fun_cadr=re.compile('ca+d+r') #a와 d가 최소 1번 이상 나오는 lexeme을 판단하기 위함 (cadr 종류에 대한 모든 경우의 수를 처리하기 위함)
 
     #lexer makes token_list(list of tuple) by input_string(string) from user.
     #lexer maps lexeme and corresponding token.
     #then makes a list of tuple(token,lexeme) for input_string gives it to parser.
-    #lex.py code is made from c code(front.c) in PL lecture note.
+    #lex.py code is made from c code(front.c) in PL lecture note 4.
 
 
 def lexer(input_string):
@@ -33,6 +33,7 @@ def lexer(input_string):
     return token_list
 
 def symbol(lex):
+    # 들어온 lexeme이 예약어인지 확인해준다. 아닌 경우 변수 취급
     cmpstr=lex.lower()
     #print(cmpstr)
     if(cmpstr=="setq"):return "setq"
@@ -58,7 +59,7 @@ def symbol(lex):
     elif(cmpstr=="print"):return "print"
     elif(cmpstr=="if"):return "if"
     elif(cmpstr=="cond"):return "cond"
-    elif(fun_cadr.match(cmpstr)!=None):return "cadr" # 조합을 'c[ad]+r'이라는 정규표현식으로 나타냄
+    elif(fun_cadr.match(cmpstr)!=None):return "cadr" # 조합을 'ca+d+r'이라는 정규표현식으로 나타냄
     elif(cmpstr=="t"):return "true"
     elif(cmpstr=="nil"):return"false"
     elif(cmpstr=="print"):return"print"
@@ -68,7 +69,8 @@ def lookup(ch):
     if ch in ['(', ')', '+', '-', '*', '/', ';', '=', '<', '>', '#', "'",'"']:
         return ch
     else:
-        return 'error'
+        print(ch+"is not readable syntax")
+        raise NotImplementedError
 def getChar():
     global nextChar
     global buffer
@@ -97,11 +99,11 @@ def lex():
         while(nextChar.isalpha() or nextChar.isdigit()):
             addChar()
             getChar()
-        nextToken=symbol(lexeme)
+        nextToken=symbol(lexeme) #들어온 lexeme이 ident인지 혹은 예약어인지 판단해줌
     elif(nextChar.isdigit()):
         addChar()
         getChar()
-        cnt=0
+        cnt=0  #정수 혹은 실수(소수점)가 들어온 경우를 받아줌
         while(nextChar=="." or nextChar.isdigit()):
             if(nextChar=="." and cnt==0):
                 cnt=cnt+1
@@ -111,7 +113,7 @@ def lex():
             addChar()
             getChar()
         nextToken = 'literal'
-    elif(nextChar=="'"):
+    elif(nextChar=="'"): #'(1 2 3) 나 'x가 들어오는 경우 각각 literal_list와 variable로 판단
         getChar()
         if(nextChar=="("):
             stack=[]
@@ -153,8 +155,8 @@ def lex():
             while(nextChar.isalnum()):
                 addChar()
                 getChar()
-            nextToken="variable" # it means case of 'X #나중에 symbol로 이름 바꾸기
-    elif(nextChar=='"'):
+            nextToken="variable" # 'x 'a 같은게 들어온 경우 variable로 취급
+    elif(nextChar=='"'): #큰 따옴표를 감싸진 문자열이 들어오는 경우 string 취급
         addChar()
         getChar()
         while(nextChar!='"'):
@@ -163,8 +165,8 @@ def lex():
         addChar()
         getChar()
         nextToken="string"
-    elif(nextChar=="-"):
-        addChar() #-들어감
+    elif(nextChar=="-"): # -가 들어온 경우 -연산자인지 혹은 -숫자(음수)를 나타내기 위한건지 판단
+        addChar()
         getChar()
         if(nextChar.isspace()):
             nextToken="-"
@@ -183,7 +185,7 @@ def lex():
                     getChar()
             nextToken='literal'
 
-    else:
+    else: #그 외 기호가 들어온 경우
         nextToken=lookup(nextChar)
         addChar()
         getChar()
@@ -191,6 +193,8 @@ def lex():
     token_list.append((nextToken,lexeme))
 
 def addChar():
+    # 모든 lexeme은 소문자로 변환돼서 저장된다.
+    # lexeme 최대 길이는 98이다.
     global temp
     global lexLen
     global buffer
